@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Gestion Utilisateurs POS</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<!-- GLOBAL CONFIG -->
+<script src="globalconfig.js"></script>
+</head>
+
+<body class="bg-light">
+    <!-- NAV RESPONSIVE -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark px-3">
+  <a class="navbar-brand fw-bold" href="#">📦 GESTION STOCK</a>
+
+  <!-- bouton mobile -->
+  <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#menu">
+    ☰
+  </button>
+
+  <div class="collapse navbar-collapse" id="menu">
+    <div class="navbar-nav ms-auto">
+      <a class="nav-link text-white" href="Menu.html">Retour →</a>
+    </div>
+  </div>
+</nav>
+
+
+<div class="container py-4">
+
+<h3 class="text-center mb-4">👤 Gestion Utilisateurs POS</h3>
+
+<div class="row g-3">
+
+<!-- FORM -->
+<div class="col-12 col-md-5">
+
+<div class="card p-3 shadow-sm">
+
+<h5>Créer utilisateur</h5>
+
+<input id="username" class="form-control my-2" placeholder="Nom utilisateur">
+
+<input id="password" type="password" class="form-control my-2" placeholder="Mot de passe">
+
+<select id="role" class="form-select my-2">
+  <option value="admin">Admin</option>
+  <option value="caissier">Caissier</option>
+</select>
+
+<button class="btn btn-primary w-100" onclick="addUser()">➕ Ajouter</button>
+
+</div>
+
+</div>
+
+<!-- LIST -->
+<div class="col-12 col-md-7">
+
+<div class="card p-3 shadow-sm">
+
+<h5>Liste utilisateurs</h5>
+
+<table class="table table-bordered mt-2">
+<thead>
+<tr>
+<th>Nom</th>
+<th>Rôle</th>
+<th>Action</th>
+</tr>
+</thead>
+
+<tbody id="userList"></tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+let users = [];
+
+// ==========================
+// LOAD USERS (GET)
+// ==========================
+async function loadUsers() {
+    const res = await fetch("http://localhost:3000/users");
+    users = await res.json();
+    renderUsers();
+}
+
+// ==========================
+// ADD USER (POST)
+// ==========================
+async function addUser() {
+
+    let username = document.getElementById("username").value;
+    let password = document.getElementById("password").value;
+    let role = document.getElementById("role").value;
+
+    if (!username || !password) {
+        alert("Remplis tous les champs !");
+        return;
+    }
+
+    await fetch("http://localhost:3000/users/register", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            username,
+            password,
+            role
+        })
+    });
+
+    document.getElementById("username").value = "";
+    document.getElementById("password").value = "";
+
+    loadUsers();
+}
+
+// ==========================
+// DELETE USER
+// ==========================
+async function deleteUser(id) {
+
+    const confirmDelete = confirm("Supprimer cet utilisateur ?");
+
+    if (!confirmDelete) return;
+
+    await fetch("http://localhost:3000/users/" + id, {
+        method: "DELETE"
+    });
+
+    loadUsers();
+}
+
+// ==========================
+// RENDER TABLE
+// ==========================
+function renderUsers() {
+
+    let tbody = document.getElementById("userList");
+    tbody.innerHTML = "";
+
+    users.forEach(u => {
+
+        tbody.innerHTML += `
+        <tr>
+            <td>${u.username}</td>
+            <td>${u.role}</td>
+            <td>
+                <button class="btn btn-danger btn-sm"
+                onclick="deleteUser('${u._id}')">X</button>
+            </td>
+        </tr>
+        `;
+    });
+}
+
+// init
+loadUsers();
+
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>
