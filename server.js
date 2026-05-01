@@ -27,7 +27,7 @@ app.use("/tva", require("./routes/Taux TVA"));
 app.use("/users", require("./routes/users"));
 app.use("/login", require("./routes/Login"));
 app.use("/ventes", require("./routes/Vente"));
-app.use("/entreprises", require("./routes/entreprises"));
+app.use("/entreprises", require("./routes/Entreprise"));
 app.use("/api/ticket", require("./routes/ticket"));
 app.use("/api", require("./routes/RapportVente"));
 app.use("/login-admin", require("./routes/Loginadmin"));
