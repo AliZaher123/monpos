@@ -32,7 +32,7 @@ app.use("/login-admin", require("./routes/Loginadmin"));
 
 // HOME
 app.use((req, res) => {
-  res.sendFile(path.join(__dirname, "public", "login.html"));
+  res.sendFile(path.join(__dirname, "public", "Login.html"));
 });
 
 // SERVER
