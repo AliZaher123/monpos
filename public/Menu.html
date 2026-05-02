@@ -14,7 +14,7 @@
 <script>
 // 🔐 PROTECTION PAGE
 if (!localStorage.getItem("isLoggedIn")) {
-  window.location.href = "login.html";
+  window.location.href = "Login.html";
 }
 </script>
 
@@ -53,7 +53,7 @@ if (!localStorage.getItem("isLoggedIn")) {
     <div class="card shadow-sm text-center p-3 h-100">
       <div class="fs-1">📦</div>
       <h6>Stock</h6>
-      <button class="btn btn-success w-100 mt-2" onclick="go('stock.html')">
+      <button class="btn btn-success w-100 mt-2" onclick="go('Stock.html')">
         Gérer
       </button>
     </div>
@@ -73,7 +73,7 @@ if (!localStorage.getItem("isLoggedIn")) {
     <div class="card shadow-sm text-center p-3 h-100">
       <div class="fs-1">📊</div>
       <h6>Rapports</h6>
-      <button class="btn btn-dark w-100 mt-2" onclick="go('rapports.html')">
+      <button class="btn btn-dark w-100 mt-2" onclick="go('Rapports.html')">
         Voir
       </button>
     </div>
@@ -105,7 +105,7 @@ function logout() {
 
     localStorage.clear(); // 🔥 supprime TOUT (session propre)
 
-    window.location.href = "login.html";
+    window.location.href = "Login.html";
 }
 
 </script>
