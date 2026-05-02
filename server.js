@@ -31,11 +31,7 @@ app.use("/api", require("./routes/RapportVente"));
 app.use("/login-admin", require("./routes/Loginadmin"));
 
 // HOME
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "login.html"));
-});
-
-app.get("/*", (req, res) => {
+app.use((req, res) => {
   res.sendFile(path.join(__dirname, "public", "login.html"));
 });
 
