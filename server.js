@@ -30,12 +30,14 @@ app.use("/api/ticket", require("./routes/Ticket"));
 app.use("/api", require("./routes/RapportVente"));
 app.use("/login-admin", require("./routes/Loginadmin"));
 
-// HOME
-app.get("*", (req, res) => {
-  if (req.path.endsWith(".html")) {
-    return res.sendFile(path.join(__dirname, "public", req.path));
-  }
-  res.sendFile(path.join(__dirname, "public", "login.html"));
+// PAGE D'ACCUEIL
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "Login.html"));
+});
+
+// OPTIONNEL : 404 propre
+app.use((req, res) => {
+  res.status(404).send("Page non trouvée");
 });
 
 // SERVER
