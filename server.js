@@ -31,8 +31,11 @@ app.use("/api", require("./routes/RapportVente"));
 app.use("/login-admin", require("./routes/Loginadmin"));
 
 // HOME
-app.use((req, res) => {
-  res.sendFile(path.join(__dirname, "public", "Login.html"));
+app.get("*", (req, res) => {
+  if (req.path.endsWith(".html")) {
+    return res.sendFile(path.join(__dirname, "public", req.path));
+  }
+  res.sendFile(path.join(__dirname, "public", "login.html"));
 });
 
 // SERVER
