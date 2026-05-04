@@ -11,17 +11,17 @@ const Stock = mongoose.model("Stock", {
   codebarre: String,
   prix: Number,
 
-  // 🔥 STOCK
+  // STOCK
   quantite: Number,
-  quantiteInitiale: Number, // ✅ NOUVEAU
+  quantiteInitiale: Number,
 
   categorie: String,
   tva: Number,
 
-  // 🔥 TYPE (Produit / Service)
+  // TYPE
   type: { type: String, default: "Produit" },
 
-  // calculs
+  // CALCULS
   prixTTC: Number,
   totalTTC: Number,
 
@@ -54,7 +54,7 @@ router.post("/", async (req, res) => {
   let tvaNum = Number(tva || 0);
   let qtyNum = Number(quantite || 0);
 
-  // 🔥 SERVICE = pas de stock
+  // SERVICE = pas de stock
   if (type === "Service") {
     qtyNum = 0;
   }
@@ -68,7 +68,7 @@ router.post("/", async (req, res) => {
     prix: prixNum,
 
     quantite: qtyNum,
-    quantiteInitiale: qtyNum, // ✅ FIXE
+    quantiteInitiale: qtyNum,
 
     categorie,
     tva: tvaNum,
@@ -128,7 +128,7 @@ router.delete("/:id", async (req, res) => {
 
 
 // =========================
-// ✏️ UPDATE STOCK
+// ✏️ UPDATE STOCK (FIX COMPLET)
 // =========================
 router.put("/:id", async (req, res) => {
 
@@ -147,7 +147,7 @@ router.put("/:id", async (req, res) => {
     return res.status(404).json({ message: "Non autorisé" });
   }
 
-  // 🔥 SERVICE = BLOQUÉ
+  // SERVICE BLOQUÉ
   if (stock.type === "Service") {
     return res.json({
       message: "Service - stock non modifiable",
@@ -158,6 +158,7 @@ router.put("/:id", async (req, res) => {
   let prix = Number(req.body.prix ?? stock.prix);
   let tva = Number(req.body.tva ?? stock.tva);
   let quantite = Number(req.body.quantite ?? stock.quantite);
+  let quantiteInitiale = Number(req.body.quantiteInitiale ?? stock.quantiteInitiale);
 
   let prixTTC = prix + (prix * tva / 100);
   let totalTTC = prixTTC * quantite;
@@ -168,6 +169,7 @@ router.put("/:id", async (req, res) => {
       prix,
       tva,
       quantite,
+      quantiteInitiale,
       prixTTC,
       totalTTC
     },
@@ -190,9 +192,11 @@ router.post("/decrement", async (req, res) => {
     idEntreprise
   });
 
-  if (!produit) return res.status(404).json({ message: "Produit introuvable" });
+  if (!produit) {
+    return res.status(404).json({ message: "Produit introuvable" });
+  }
 
-  // 🔥 SERVICE = ON NE TOUCHE PAS
+  // SERVICE IGNORÉ
   if (produit.type === "Service") {
     return res.json({ message: "Service ignoré", produit });
   }
