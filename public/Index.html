@@ -475,6 +475,7 @@ async function pay() {
   let totalTTC = parseFloat(document.getElementById("totalUSD").innerText);
   let payUSD = parseFloat(document.getElementById("payUSD").value) || 0;
   let payCDF = parseFloat(document.getElementById("payCDF").value) || 0;
+  let remark = document.getElementById("remark").value;
 
   let method = document.getElementById("paymentMethod").value;
 
@@ -585,6 +586,10 @@ if (settings.enableTVA) {
 ticket += `<p>Payé: ${safePay.toFixed(2)} USD</p>`;
 ticket += `<p>Monnaie: ${safeChange.toFixed(2)} USD</p>`;
 ticket += `<p>Méthode: ${method}</p>`;
+
+if (remark && remark.trim() !== "") {
+  ticket += `<p><b>Remarque:</b> ${remark}</p>`;
+}
 
 ticket += `</div>`;
 
