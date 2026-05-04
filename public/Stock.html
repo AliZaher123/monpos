@@ -68,6 +68,13 @@
 <div class="col-12 col-md-8">
 <div class="card p-3 shadow-sm">
 
+<div class="d-flex justify-content-end mb-2">
+    <button class="btn btn-dark" onclick="printReport()">
+        🖨 Imprimer rapport
+    </button>
+</div>
+
+
 <div class="table-responsive">
 <table class="table table-bordered table-sm">
 
@@ -336,6 +343,101 @@ function chargerTva() {
     });
 }
 chargerTva();
+
+
+
+
+function printReport() {
+
+    let date = new Date().toLocaleString();
+
+    let printWindow = window.open("", "", "width=900,height=700");
+
+    let table = document.getElementById("stockTable").outerHTML;
+
+    printWindow.document.write(`
+        <html>
+        <head>
+            <title>Rapport Stock</title>
+            <style>
+                body {
+                    font-family: Arial;
+                    padding: 20px;
+                }
+
+                h2 {
+                    text-align: center;
+                }
+
+                .date {
+                    text-align: center;
+                    margin-bottom: 20px;
+                    color: gray;
+                }
+
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                }
+
+                table, th, td {
+                    border: 1px solid black;
+                }
+
+                th, td {
+                    padding: 8px;
+                    text-align: center;
+                }
+
+                th {
+                    background: #000;
+                    color: #fff;
+                }
+            </style>
+        </head>
+
+        <body>
+
+            <h2>📦 Rapport Stock - HELPSTORE</h2>
+            <div class="date">Date: ${date}</div>
+
+            <table>
+                <thead>
+                    ${document.querySelector("thead").outerHTML}
+                </thead>
+                <tbody>
+                    ${table}
+                </tbody>
+            </table>
+
+            <script>
+                window.print();
+                window.onafterprint = window.close;
+            <\/script>
+
+        </body>
+        </html>
+    `);
+
+    printWindow.document.close();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 </script>
 
