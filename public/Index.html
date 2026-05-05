@@ -29,7 +29,7 @@
   <div class="collapse navbar-collapse" id="menu">
     <div class="navbar-nav ms-auto">
       <a class="nav-link text-white" href="Rapports.html">Rapports</a>
-      <a class="nav-link text-white" href="Menu.html">Menu</a>
+      <a id="menuLink" class="nav-link text-white" href="Menu.html">Menu</a>
     </div>
  <!-- 👇 ICI -->
   <span id="currentUser" class="text-white ms-3"></span>
@@ -165,7 +165,15 @@ if (!idEntreprise) {
   window.location.href = "Login.html";
 }
 
+const role = localStorage.getItem("role");
 
+if (role === "users") {
+  const menuLink = document.getElementById("menuLink");
+
+  menuLink.classList.add("disabled");   // style Bootstrap
+  menuLink.style.pointerEvents = "none"; // bloque clic
+  menuLink.style.opacity = "0.5";       // effet visuel
+}
 
 
 
