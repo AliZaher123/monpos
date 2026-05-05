@@ -165,15 +165,21 @@ if (!idEntreprise) {
   window.location.href = "Login.html";
 }
 
-const role = localStorage.getItem("role");
+document.addEventListener("DOMContentLoaded", () => {
 
-if (role === "users") {
-  const menuLink = document.getElementById("menuLink");
+  const role = localStorage.getItem("role");
 
-  menuLink.classList.add("disabled");   // style Bootstrap
-  menuLink.style.pointerEvents = "none"; // bloque clic
-  menuLink.style.opacity = "0.5";       // effet visuel
-}
+  if (role === "user") {
+    const menuLink = document.getElementById("menuLink");
+
+    if (menuLink) {
+      menuLink.classList.add("disabled");
+      menuLink.style.pointerEvents = "none";
+      menuLink.style.opacity = "0.5";
+    }
+  }
+
+});
 
 
 
