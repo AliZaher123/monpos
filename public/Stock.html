@@ -250,10 +250,13 @@ function render() {
         let qtyInitial = p.quantiteInitiale || 0;
         let qty = isService ? "-" : Number(p.quantite) || 0;
 
-        let price = Number(p.prix) || 0;
+        let priceTTC = Number(p.prix) || 0;   // ⚠️ prix TTC
         let tva = Number(p.tva) || 0;
 
-        let priceTTC = price + (price * tva / 100);
+        // ✅ EXTRAIRE TVA
+        let priceHT = priceTTC / (1 + tva / 100);
+        let montantTVA = priceTTC - priceHT;
+
         let totalTTC = isService ? priceTTC : priceTTC * qty;
 
         tbody.innerHTML += `
@@ -263,10 +266,12 @@ function render() {
             <td>${p.categorie}</td>
             <td>${p.type}</td>
 
+            <!-- PRIX TTC -->
             <td class="text-primary fw-bold">
                 ${priceTTC.toFixed(2)} $
             </td>
 
+            <!-- QTÉ INITIALE -->
             <td>
             ${
                 isService
@@ -279,6 +284,7 @@ function render() {
             }
             </td>
 
+            <!-- QTÉ ACTUELLE -->
             <td>
             ${
                 isService
@@ -291,8 +297,10 @@ function render() {
             }
             </td>
 
+            <!-- TVA % -->
             <td>${tva}%</td>
 
+            <!-- TOTAL TTC -->
             <td class="text-success fw-bold">
                 ${totalTTC.toFixed(2)} $
             </td>
