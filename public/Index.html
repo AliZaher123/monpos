@@ -33,6 +33,7 @@
     </div>
  <!-- 👇 ICI -->
   <span id="currentUser" class="text-white ms-3"></span>
+    <button class="btn btn-danger btn-sm" onclick="logout()">Déconnexion</button>
 
   </div>
 
@@ -180,6 +181,26 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
 });
+
+
+function logout() {
+
+    localStorage.clear(); // 🔥 supprime TOUT (session propre)
+
+    window.location.href = "Login.html";
+}
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
