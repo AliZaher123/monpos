@@ -165,8 +165,19 @@
 
 
 let idEntreprise = localStorage.getItem("idEntreprise");
-const currentUser = localStorage.getItem("user") || "Inconnu";
-document.getElementById("currentUser").innerText = "👤 " + currentUser;
+
+
+document.addEventListener("DOMContentLoaded", () => {
+  const user = localStorage.getItem("user") || "Inconnu";
+  const role = localStorage.getItem("role") || "";
+
+  const el = document.getElementById("currentUser");
+
+  if (el) {
+    el.innerText = "👤 " + user + (role ? " (" + role + ")" : "");
+  }
+});
+
 
 // 🔐 sécurité SaaS
 if (!idEntreprise) {
@@ -589,7 +600,7 @@ ticket += `</div>`;
 // ======================
 ticket += `<div class="left">`;
 
-ticket += `<p>Caissier: ${currentUser}</p>`;
+ticket += `<p>Caissier: ${user}</p>`;
 //ticket += `<p>Entreprise: ${idEntreprise}</p>`;
 
 const now = new Date().toLocaleString();

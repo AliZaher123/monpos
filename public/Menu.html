@@ -12,8 +12,8 @@
 <body class="bg-light">
 
 <script>
-// 🔐 PROTECTION PAGE
-if (!localStorage.getItem("isLoggedIn")) {
+// 🔐 PROTECTION SIMPLE SaaS
+if (!localStorage.getItem("idEntreprise")) {
   window.location.href = "Login.html";
 }
 </script>
@@ -86,26 +86,27 @@ if (!localStorage.getItem("isLoggedIn")) {
 <script>
 
 // =====================
-// AFFICHER USER
+// USER AFFICHAGE (PROPRE)
 // =====================
 const user = localStorage.getItem("user") || "Inconnu";
-document.getElementById("userText").innerText = "👤 " + user;
+const role = localStorage.getItem("role") || "";
+
+document.getElementById("userText").innerText =
+  "👤 " + user + (role ? " (" + role + ")" : "");
 
 // =====================
 // NAVIGATION
 // =====================
 function go(page) {
-    window.location.href = page;
+  window.location.href = page;
 }
 
 // =====================
 // LOGOUT PROPRE
 // =====================
 function logout() {
-
-    localStorage.clear(); // 🔥 supprime TOUT (session propre)
-
-    window.location.href = "Login.html";
+  localStorage.clear();
+  window.location.href = "Login.html";
 }
 
 </script>
