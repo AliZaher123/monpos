@@ -16,16 +16,12 @@
 
   <div class="card p-4 shadow" style="width:350px">
 
-
-<div class="text-center mb-3">
-  
-  <h1 class="fw-bold" style="font-size:32px; letter-spacing:3px; color:#0d6efd;">
-    🛒 HELPSTORE
-  </h1>
-  <small class="text-muted">Point of Sale System</small>
-</div>
-
-
+    <div class="text-center mb-3">
+      <h1 class="fw-bold" style="font-size:32px; letter-spacing:3px; color:#0d6efd;">
+        🛒 HELPSTORE
+      </h1>
+      <small class="text-muted">Point of Sale System</small>
+    </div>
 
     <h4 class="text-center mb-3">Connexion</h4>
 
@@ -43,10 +39,10 @@
 
 <script>
 
-const APILogin = `${API}`;
+const API_LOGIN = API;
 
 // =========================
-// LOGIN
+// LOGIN FUNCTION
 // =========================
 async function login() {
 
@@ -63,10 +59,10 @@ async function login() {
 
   try {
 
-    const res = await fetch(`${APILogin}/login`, {
+    const res = await fetch(`${API_LOGIN}/entreprises/${entrepriseId}/login`, {
       method: "POST",
-      headers: {"Content-Type":"application/json"},
-      body: JSON.stringify({ entrepriseId, user, password })
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ user, password })
     });
 
     const data = await res.json();
@@ -77,21 +73,21 @@ async function login() {
     }
 
     // =========================
-    // SESSION
+    // SESSION STORAGE
     // =========================
-    localStorage.setItem("idEntreprise", data.entrepriseId);
-    localStorage.setItem("user", data.user);
-    localStorage.setItem("role", data.role);
+    localStorage.setItem("idEntreprise", entrepriseId);
+    localStorage.setItem("user", JSON.stringify(data.user));
+    localStorage.setItem("role", data.user.role);
     localStorage.setItem("isLoggedIn", "true");
 
     msg.innerHTML = "<span class='text-success'>Connexion réussie ✔</span>";
 
     // =========================
-    // REDIRECTION SELON ROLE
+    // REDIRECTION
     // =========================
     setTimeout(() => {
 
-      if (data.role === "admin") {
+      if (data.user.role === "admin") {
         window.location.href = "Menu.html";
       } else {
         window.location.href = "Index.html";
