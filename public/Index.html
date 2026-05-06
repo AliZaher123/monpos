@@ -600,7 +600,8 @@ ticket += `</div>`;
 // ======================
 ticket += `<div class="left">`;
 
-ticket += `<p>Caissier: ${user}</p>`;
+const userData = JSON.parse(localStorage.getItem("user")) || {};
+ticket += `<p>Caissier: ${userData.name || "Inconnu"}</p>`;
 //ticket += `<p>Entreprise: ${idEntreprise}</p>`;
 
 const now = new Date().toLocaleString();
