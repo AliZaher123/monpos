@@ -76,7 +76,7 @@ async function login() {
     // SESSION STORAGE
     // =========================
     localStorage.setItem("idEntreprise", entrepriseId);
-    localStorage.setItem("user", JSON.stringify(data.user));
+    localStorage.setItem("user", data.user.name);
     localStorage.setItem("role", data.user.role);
     localStorage.setItem("isLoggedIn", "true");
 
