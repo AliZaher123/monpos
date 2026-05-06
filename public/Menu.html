@@ -11,9 +11,9 @@
 
 <body class="bg-light">
 
+<!-- 🔐 PROTECTION PAGE -->
 <script>
-// 🔐 PROTECTION SIMPLE SaaS
-if (!localStorage.getItem("idEntreprise")) {
+if (!localStorage.getItem("user")) {
   window.location.href = "Login.html";
 }
 </script>
@@ -85,13 +85,8 @@ if (!localStorage.getItem("idEntreprise")) {
 
 <script>
 
-// 🔐 PROTECTION PAGE
-if (!localStorage.getItem("user")) {
-  window.location.href = "Login.html";
-}
-
 // =====================
-// AFFICHER USER (CORRIGÉ)
+// AFFICHAGE USER PROPRE
 // =====================
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -110,7 +105,7 @@ function go(page) {
 }
 
 // =====================
-// LOGOUT PROPRE
+// LOGOUT
 // =====================
 function logout() {
   localStorage.clear();
