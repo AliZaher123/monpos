@@ -85,14 +85,22 @@ if (!localStorage.getItem("idEntreprise")) {
 
 <script>
 
-// =====================
-// USER AFFICHAGE (PROPRE)
-// =====================
-const user = localStorage.getItem("user") || "Inconnu";
-const role = localStorage.getItem("role") || "";
+// 🔐 PROTECTION PAGE
+if (!localStorage.getItem("user")) {
+  window.location.href = "Login.html";
+}
 
-document.getElementById("userText").innerText =
-  "👤 " + user + (role ? " (" + role + ")" : "");
+// =====================
+// AFFICHER USER (CORRIGÉ)
+// =====================
+document.addEventListener("DOMContentLoaded", () => {
+
+  const user = localStorage.getItem("user") || "Inconnu";
+  const role = localStorage.getItem("role") || "";
+
+  document.getElementById("userText").innerText =
+    "👤 " + user + (role ? " (" + role + ")" : "");
+});
 
 // =====================
 // NAVIGATION
