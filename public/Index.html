@@ -178,6 +178,8 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
+let user = localStorage.getItem("user") || "Inconnu";
+
 
 // 🔐 sécurité SaaS
 if (!idEntreprise) {
@@ -600,8 +602,7 @@ ticket += `</div>`;
 // ======================
 ticket += `<div class="left">`;
 
-const userData = JSON.parse(localStorage.getItem("user")) || {};
-ticket += `<p>Caissier: ${userData.name || "Inconnu"}</p>`;
+ticket += `<p>Caissier: ${user}</p>`;
 //ticket += `<p>Entreprise: ${idEntreprise}</p>`;
 
 const now = new Date().toLocaleString();
