@@ -1,5 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const bcrypt = require("bcrypt"); // 🔐 ajout
 
 const router = express.Router();
 
@@ -58,7 +59,7 @@ router.post("/", async (req, res) => {
 });
 
 // ======================
-// 📄 GET ALL ENTREPRISES (FRONTEND READY)
+// 📄 GET ALL ENTREPRISES
 // ======================
 router.get("/", async (req, res) => {
   try {
@@ -97,7 +98,7 @@ router.get("/", async (req, res) => {
 });
 
 // ======================
-// 👤 ADD USER
+// 👤 ADD USER (🔐 HASH)
 // ======================
 router.post("/:id/user", async (req, res) => {
   try {
@@ -106,15 +107,58 @@ router.post("/:id/user", async (req, res) => {
     if (!entreprise)
       return res.status(404).json({ msg: "Entreprise introuvable" });
 
+    // ✅ éviter doublon
+    const exist = entreprise.users.find(u => u.user === req.body.user);
+    if (exist)
+      return res.status(400).json({ msg: "Utilisateur existe déjà" });
+
+    // 🔐 HASH PASSWORD
+    const hashedPassword = await bcrypt.hash(req.body.password, 10);
+
     entreprise.users.push({
       user: req.body.user,
-      password: req.body.password,
+      password: hashedPassword,
       role: req.body.role || "user"
     });
 
     await entreprise.save();
 
     res.json({ success: true, entreprise });
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ======================
+// 🔐 LOGIN USER
+// ======================
+router.post("/:id/login", async (req, res) => {
+  try {
+
+    const { user, password } = req.body;
+
+    const entreprise = await Entreprise.findById(req.params.id);
+    if (!entreprise)
+      return res.status(404).json({ msg: "Entreprise introuvable" });
+
+    const foundUser = entreprise.users.find(u => u.user === user);
+    if (!foundUser)
+      return res.status(401).json({ msg: "Utilisateur introuvable" });
+
+    // 🔐 comparer password
+    const isMatch = await bcrypt.compare(password, foundUser.password);
+
+    if (!isMatch)
+      return res.status(401).json({ msg: "Mot de passe incorrect" });
+
+    res.json({
+      success: true,
+      user: {
+        name: foundUser.user,
+        role: foundUser.role
+      }
+    });
 
   } catch (err) {
     res.status(500).json({ error: err.message });
