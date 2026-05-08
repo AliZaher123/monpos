@@ -4,7 +4,6 @@ const express = require("express");
 const path = require("path");
 const session = require("express-session");
 const cors = require("cors");
-const MongoStore = require("connect-mongo");
 
 const app = express();
 
@@ -24,18 +23,19 @@ app.set("trust proxy", 1);
 // ======================
 // SESSION (IMPORTANT: EN HAUT)
 // ======================
+const MongoStore = require("connect-mongo").default || require("connect-mongo");
 app.use(session({
   secret: process.env.SESSION_SECRET || "monsecret",
   resave: false,
   saveUninitialized: false,
-  store: MongoStore.create({
+  store: new MongoStore({
     mongoUrl: process.env.MONGO_URL
   }),
   cookie: {
     secure: true,
     httpOnly: true,
     sameSite: "none",
-    maxAge: 1000 * 60 * 60 * 24 // 1 jour
+    maxAge: 1000 * 60 * 60 * 24
   }
 }));
 
