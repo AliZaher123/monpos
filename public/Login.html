@@ -60,9 +60,20 @@ async function login() {
   try {
 
     const res = await fetch(`${API_LOGIN}/entreprises/${entrepriseId}/login`, {
+
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ user, password })
+      headers: {
+        "Content-Type": "application/json"
+      },
+
+      credentials: "include", // 🔥 OBLIGATOIRE POUR SESSION
+
+      body: JSON.stringify({
+        entrepriseId,
+        user,
+        password
+      })
+
     });
 
     const data = await res.json();
@@ -73,7 +84,7 @@ async function login() {
     }
 
     // =========================
-    // SESSION STORAGE
+    // UI STORAGE (optionnel)
     // =========================
     localStorage.setItem("idEntreprise", entrepriseId);
     localStorage.setItem("user", data.user.name);

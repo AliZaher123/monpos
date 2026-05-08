@@ -1,46 +1,98 @@
 require("dotenv").config();
+
 const express = require("express");
 const path = require("path");
 const cors = require("cors");
+const session = require("express-session");
 
 const app = express();
 
+// ======================
 // DB
+// ======================
 const connectDB = require("./db");
 connectDB();
 
-// MIDDLEWARE
-app.use(cors());
+// ======================
+// MIDDLEWARE LOGIN
+// ======================
+const { isLoggedIn } = require("./middleware");
+
+// ======================
+// SESSION (IMPORTANT: EN HAUT)
+// ======================
+app.use(session({
+  secret: "monsecret",
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: false,
+    httpOnly: true
+  }
+}));
+
+// ======================
+// CORS
+// ======================
+app.use(cors({
+  origin: true,
+  credentials: true
+}));
+
+// ======================
+// BODY PARSER
+// ======================
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
-// STATIC
+// ======================
+// STATIC FILES
+// ======================
 app.use(express.static(path.join(__dirname, "public")));
 
-// ROUTES
-app.use("/categorie", require("./routes/categorie"));
-app.use("/stock", require("./routes/Stock"));
-app.use("/taux", require("./routes/Taux Devise"));
-app.use("/tva", require("./routes/Taux TVA"));
-app.use("/users", require("./routes/users"));
+// ======================
+// ROUTES PUBLIQUES
+// ======================
 app.use("/login", require("./routes/Login"));
-app.use("/ventes", require("./routes/Vente"));
-app.use("/entreprises", require("./routes/Entreprise"));
-app.use("/api/ticket", require("./routes/Ticket"));
-app.use("/api", require("./routes/RapportVente"));
 app.use("/login-admin", require("./routes/Loginadmin"));
+app.use("/entreprises", require("./routes/Entreprise"));
 
-// PAGE D'ACCUEIL
+// ======================
+// ROUTES PROTÉGÉES (POS)
+// ======================
+app.use("/stock", isLoggedIn, require("./routes/Stock"));
+app.use("/ventes", isLoggedIn, require("./routes/Vente"));
+app.use("/categorie", isLoggedIn, require("./routes/categorie"));
+app.use("/users", isLoggedIn, require("./routes/users"));
+app.use("/taux", isLoggedIn, require("./routes/Taux Devise"));
+app.use("/tva", isLoggedIn, require("./routes/Taux TVA"));
+app.use("/api/ticket", isLoggedIn, require("./routes/Ticket"));
+app.use("/api", isLoggedIn, require("./routes/RapportVente"));
+
+// ======================
+// TEST ROUTE PROTÉGÉE
+// ======================
+app.get("/api/products", isLoggedIn, async (req, res) => {
+  res.send("Route protégée");
+});
+
+// ======================
+// HOME PAGE
+// ======================
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "Login.html"));
 });
 
-// OPTIONNEL : 404 propre
+// ======================
+// 404
+// ======================
 app.use((req, res) => {
   res.status(404).send("Page non trouvée");
 });
 
-// SERVER
+// ======================
+// SERVER START
+// ======================
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {

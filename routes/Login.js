@@ -1,6 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const bcrypt = require("bcrypt"); // 🔐 ajouté
+const bcrypt = require("bcrypt");
 
 const router = express.Router();
 
@@ -27,38 +27,73 @@ const Entreprise =
   mongoose.model("Entreprise", entrepriseSchema);
 
 // ======================
-// 🔐 LOGIN ROUTE
+// 🔐 LOGIN ROUTE (SESSION READY)
 // ======================
 router.post("/", async (req, res) => {
+
   try {
 
     const { entrepriseId, user, password } = req.body;
 
+    // ======================
+    // ❌ champs manquants
+    // ======================
     if (!entrepriseId || !user || !password) {
-      return res.status(400).json({ msg: "Champs manquants" });
+      return res.status(400).json({
+        msg: "Champs manquants"
+      });
     }
 
+    // ======================
+    // 🔎 entreprise
+    // ======================
     const entreprise = await Entreprise.findById(entrepriseId);
 
     if (!entreprise) {
-      return res.status(404).json({ msg: "Entreprise introuvable" });
+      return res.status(404).json({
+        msg: "Entreprise introuvable"
+      });
     }
 
-    // 🔎 chercher utilisateur
-    const foundUser = entreprise.users.find(u => u.user === user);
+    // ======================
+    // 🔎 user
+    // ======================
+    const foundUser = entreprise.users.find(
+      u => u.user === user
+    );
 
     if (!foundUser) {
-      return res.status(401).json({ msg: "Login incorrect" });
+      return res.status(401).json({
+        msg: "Login incorrect"
+      });
     }
 
-    // 🔐 comparaison bcrypt
-    const isMatch = await bcrypt.compare(password, foundUser.password);
+    // ======================
+    // 🔐 password check
+    // ======================
+    const isMatch = await bcrypt.compare(
+      password,
+      foundUser.password
+    );
 
     if (!isMatch) {
-      return res.status(401).json({ msg: "Login incorrect" });
+      return res.status(401).json({
+        msg: "Login incorrect"
+      });
     }
 
-    // ✅ succès login
+    // ======================
+    // 🔥 SESSION CRÉÉE ICI (IMPORTANT)
+    // ======================
+    req.session.user = {
+      entrepriseId: entreprise._id,
+      name: foundUser.user,
+      role: foundUser.role
+    };
+
+    // ======================
+    // ✅ RESPONSE FRONTEND
+    // ======================
     res.json({
       msg: "Connexion réussie",
       entrepriseId: entreprise._id,
@@ -69,9 +104,15 @@ router.post("/", async (req, res) => {
     });
 
   } catch (err) {
+
     console.log(err);
-    res.status(500).json({ error: err.message });
+
+    res.status(500).json({
+      error: err.message
+    });
+
   }
+
 });
 
 module.exports = router;
