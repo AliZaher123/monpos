@@ -50,6 +50,41 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 // ======================
 app.use(express.static(path.join(__dirname, "public")));
 
+
+
+
+
+
+// ======================
+// TEST SESSION
+// ======================
+
+app.get("/test-session", (req, res) => {
+
+  req.session.test = "OK";
+
+  res.send("Session créée");
+
+});
+
+app.get("/check-session", (req, res) => {
+
+  res.send(req.session.test || "Pas de session");
+
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
 // ======================
 // ROUTES PUBLIQUES
 // ======================
