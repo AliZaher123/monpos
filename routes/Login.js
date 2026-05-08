@@ -27,7 +27,7 @@ const Entreprise =
   mongoose.model("Entreprise", entrepriseSchema);
 
 // ======================
-// 🔐 LOGIN ROUTE (SESSION READY)
+// 🔐 LOGIN ROUTE
 // ======================
 router.post("/", async (req, res) => {
 
@@ -83,7 +83,7 @@ router.post("/", async (req, res) => {
     }
 
     // ======================
-    // 🔥 SESSION CRÉÉE ICI (IMPORTANT)
+    // 🔥 SESSION CRÉÉE
     // ======================
     req.session.user = {
       entrepriseId: entreprise._id,
@@ -92,15 +92,29 @@ router.post("/", async (req, res) => {
     };
 
     // ======================
-    // ✅ RESPONSE FRONTEND
+    // 💾 FORCER SAUVEGARDE SESSION (IMPORTANT)
     // ======================
-    res.json({
-      msg: "Connexion réussie",
-      entrepriseId: entreprise._id,
-      user: {
-        name: foundUser.user,
-        role: foundUser.role
+    req.session.save((err) => {
+
+      if (err) {
+        console.log("SESSION ERROR:", err);
+        return res.status(500).json({
+          msg: "Erreur session"
+        });
       }
+
+      // ======================
+      // ✅ RESPONSE FRONTEND
+      // ======================
+      res.json({
+        msg: "Connexion réussie",
+        entrepriseId: entreprise._id,
+        user: {
+          name: foundUser.user,
+          role: foundUser.role
+        }
+      });
+
     });
 
   } catch (err) {
