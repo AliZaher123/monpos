@@ -18,6 +18,8 @@ connectDB();
 // ======================
 const { isLoggedIn } = require("./middleware");
 
+app.set("trust proxy", 1);
+
 // ======================
 // SESSION (IMPORTANT: EN HAUT)
 // ======================
