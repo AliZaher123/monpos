@@ -2,8 +2,9 @@ require("dotenv").config();
 
 const express = require("express");
 const path = require("path");
-const cors = require("cors");
 const session = require("express-session");
+const cors = require("cors");
+const MongoStore = require("connect-mongo");
 
 const app = express();
 
@@ -24,13 +25,17 @@ app.set("trust proxy", 1);
 // SESSION (IMPORTANT: EN HAUT)
 // ======================
 app.use(session({
-  secret: "monsecret",
+  secret: process.env.SESSION_SECRET || "monsecret",
   resave: false,
   saveUninitialized: false,
+  store: MongoStore.create({
+    mongoUrl: process.env.MONGO_URL
+  }),
   cookie: {
-   secure: true,
+    secure: true,
     httpOnly: true,
-    sameSite: "none"
+    sameSite: "none",
+    maxAge: 1000 * 60 * 60 * 24 // 1 jour
   }
 }));
 
@@ -84,6 +89,7 @@ app.get("/check-session", (req, res) => {
 app.get("/me", (req, res) => {
 
   res.json({
+    user: req.session.user || null,
     session: req.session
   });
 
