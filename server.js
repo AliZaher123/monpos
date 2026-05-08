@@ -74,6 +74,19 @@ app.get("/check-session", (req, res) => {
 });
 
 
+// ======================
+// TEST SESSION (OU ROUTE /ME)
+// ======================
+
+app.get("/me", (req, res) => {
+
+  res.json({
+    session: req.session
+  });
+
+});
+
+
 
 
 
