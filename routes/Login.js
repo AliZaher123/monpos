@@ -83,45 +83,49 @@ router.post("/", async (req, res) => {
     }
 
     // ======================
-    // 🔥 SESSION CRÉÉE
+    // 🔥 SESSION PROPRE (RENDER SAFE)
     // ======================
-    req.session.user = {
-      entrepriseId: entreprise._id,
-      name: foundUser.user,
-      role: foundUser.role
-    };
-
-
-
-    // 👇 AJOUTE ICI LES LOGS
-console.log("LOGIN sessionID:", req.sessionID);
-console.log("LOGIN user before save:", req.session.user);
-
-
-
-
-    // ======================
-    // 💾 FORCER SAUVEGARDE SESSION (IMPORTANT)
-    // ======================
-    req.session.save((err) => {
+    req.session.regenerate((err) => {
 
       if (err) {
-        console.log("SESSION ERROR:", err);
+        console.log("SESSION REGENERATE ERROR:", err);
         return res.status(500).json({
-          msg: "Erreur session"
+          msg: "Session error"
         });
       }
 
-      // ======================
-      // ✅ RESPONSE FRONTEND
-      // ======================
-      res.json({
-        msg: "Connexion réussie",
+      req.session.user = {
         entrepriseId: entreprise._id,
-        user: {
-          name: foundUser.user,
-          role: foundUser.role
+        name: foundUser.user,
+        role: foundUser.role
+      };
+
+      // ======================
+      // 💾 SAVE SESSION
+      // ======================
+      req.session.save((err) => {
+
+        if (err) {
+          console.log("SESSION SAVE ERROR:", err);
+          return res.status(500).json({
+            msg: "Erreur session"
+          });
         }
+
+        // ======================
+        // 🔥 DEBUG LOGS
+        // ======================
+        console.log("LOGIN sessionID:", req.sessionID);
+        console.log("LOGIN user:", req.session.user);
+
+        // ======================
+        // ✅ RESPONSE FRONTEND
+        // ======================
+        return res.json({
+          msg: "Connexion réussie",
+          user: req.session.user
+        });
+
       });
 
     });
