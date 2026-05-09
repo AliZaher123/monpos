@@ -59,9 +59,11 @@ async function login() {
 
   try {
 
-    const res = await fetch(`${API_LOGIN}/entreprises/${entrepriseId}/login`, {
+    // 🔥 CORRECTION IMPORTANTE : BON ENDPOINT
+    const res = await fetch(`${API_LOGIN}/login`, {
 
       method: "POST",
+
       headers: {
         "Content-Type": "application/json"
       },
@@ -84,7 +86,7 @@ async function login() {
     }
 
     // =========================
-    // UI STORAGE (optionnel)
+    // LOCAL STORAGE
     // =========================
     localStorage.setItem("idEntreprise", entrepriseId);
     localStorage.setItem("user", data.user.name);
