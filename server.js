@@ -67,21 +67,7 @@ app.use(
 // ======================
 app.use(express.static(path.join(__dirname, "public")));
 
-// ======================
-// TEST SESSION
-// ======================
-app.get("/test-session", (req, res) => {
-  req.session.test = "OK";
 
-  req.session.save((err) => {
-    if (err) return res.status(500).send("Erreur session");
-    res.send("Session créée");
-  });
-});
-
-app.get("/check-session", (req, res) => {
-  res.send(req.session.test || "Pas de session");
-});
 
 // ======================
 // ME ROUTE (DEBUG)
