@@ -3,49 +3,62 @@ require("dotenv").config();
 const express = require("express");
 const path = require("path");
 const session = require("express-session");
+const MongoStore = require("connect-mongo").default || require("connect-mongo");
 const cors = require("cors");
 
 const app = express();
 
 // ======================
-// DB
+// CONNEXION BASE DE DONNÉES
 // ======================
 const connectDB = require("./db");
 connectDB();
 
 // ======================
-// MIDDLEWARE LOGIN
+// MIDDLEWARE D'AUTHENTIFICATION
 // ======================
 const { isLoggedIn } = require("./middleware");
 
+// ======================
+// TRUST PROXY (IMPORTANT SI HTTPS VIA NGINX/APACHE/CLOUDFLARE)
+// ======================
 app.set("trust proxy", 1);
 
 // ======================
-// SESSION (IMPORTANT: EN HAUT)
+// SESSION
+// IMPORTANT : DOIT ÊTRE AVANT LES ROUTES
 // ======================
-const MongoStore = require("connect-mongo").default || require("connect-mongo");
-app.use(session({
-  secret: process.env.SESSION_SECRET || "monsecret",
-  resave: false,
-  saveUninitialized: false,
-  store: new MongoStore({
-    mongoUrl: process.env.MONGO_URL
-  }),
-  cookie: {
-    secure: true,
-    httpOnly: true,
-    sameSite: "none",
-    maxAge: 1000 * 60 * 60 * 24
-  }
-}));
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || "monsecret",
+    resave: false,
+    saveUninitialized: false,
+
+    // Stockage des sessions dans MongoDB
+    store: MongoStore.create({
+      mongoUrl: process.env.MONGO_URL
+    }),
+
+    // Configuration du cookie
+    cookie: {
+      secure: true,          // HTTPS obligatoire
+      httpOnly: true,        // Cookie inaccessible via JavaScript
+      sameSite: "none",      // Requis pour frontend/backend sur origines différentes
+      maxAge: 1000 * 60 * 60 * 24 // 24 heures
+    }
+  })
+);
 
 // ======================
 // CORS
+// IMPORTANT : credentials doit être true
 // ======================
-app.use(cors({
-  origin: true,
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: true,
+    credentials: true
+  })
+);
 
 // ======================
 // BODY PARSER
@@ -54,58 +67,40 @@ app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
 // ======================
-// STATIC FILES
+// FICHIERS STATIQUES (public)
 // ======================
 app.use(express.static(path.join(__dirname, "public")));
 
-
-
-
-
-
 // ======================
-// TEST SESSION
+// ROUTES DE TEST SESSION
 // ======================
-
 app.get("/test-session", (req, res) => {
-
   req.session.test = "OK";
 
-  res.send("Session créée");
+  req.session.save((err) => {
+    if (err) {
+      return res.status(500).send("Erreur session");
+    }
 
+    res.send("Session créée");
+  });
 });
 
 app.get("/check-session", (req, res) => {
-
   res.send(req.session.test || "Pas de session");
-
 });
 
-
 // ======================
-// TEST SESSION (OU ROUTE /ME)
+// ROUTE /ME
+// Permet de vérifier l'utilisateur connecté
 // ======================
-
 app.get("/me", (req, res) => {
-
   res.json({
+    sessionID: req.sessionID,
     user: req.session.user || null,
     session: req.session
   });
-
 });
-
-
-
-
-
-
-
-
-
-
-
-
 
 // ======================
 // ROUTES PUBLIQUES
@@ -127,31 +122,31 @@ app.use("/api/ticket", isLoggedIn, require("./routes/Ticket"));
 app.use("/api", isLoggedIn, require("./routes/RapportVente"));
 
 // ======================
-// TEST ROUTE PROTÉGÉE
+// ROUTE DE TEST PROTÉGÉE
 // ======================
-app.get("/api/products", isLoggedIn, async (req, res) => {
+app.get("/api/products", isLoggedIn, (req, res) => {
   res.send("Route protégée");
 });
 
 // ======================
-// HOME PAGE
+// PAGE D'ACCUEIL
 // ======================
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "Login.html"));
 });
 
 // ======================
-// 404
+// 404 - PAGE NON TROUVÉE
 // ======================
 app.use((req, res) => {
   res.status(404).send("Page non trouvée");
 });
 
 // ======================
-// SERVER START
+// DÉMARRAGE DU SERVEUR
 // ======================
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-  console.log("Serveur lancé sur " + PORT);
+  console.log("Serveur lancé sur le port " + PORT);
 });
