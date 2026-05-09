@@ -97,8 +97,8 @@ app.get("/check-session", (req, res) => {
 app.get("/me", (req, res) => {
   res.json({
     sessionID: req.sessionID,
-    user: req.session.user || null,
-    session: req.session
+    cookies: req.headers.cookie,
+    user: req.session.user || null
   });
 });
 
