@@ -91,6 +91,15 @@ router.post("/", async (req, res) => {
       role: foundUser.role
     };
 
+
+
+    // 👇 AJOUTE ICI LES LOGS
+console.log("LOGIN sessionID:", req.sessionID);
+console.log("LOGIN user before save:", req.session.user);
+
+
+
+
     // ======================
     // 💾 FORCER SAUVEGARDE SESSION (IMPORTANT)
     // ======================

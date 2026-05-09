@@ -95,6 +95,14 @@ app.get("/check-session", (req, res) => {
 // Permet de vérifier l'utilisateur connecté
 // ======================
 app.get("/me", (req, res) => {
+
+
+// 🔥 LOGS DEBUG
+  console.log("ME sessionID:", req.sessionID);
+  console.log("ME user:", req.session.user);
+
+
+
   res.json({
     sessionID: req.sessionID,
     cookies: req.headers.cookie,
