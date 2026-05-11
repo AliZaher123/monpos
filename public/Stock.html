@@ -361,77 +361,96 @@ chargerTva();
 
 function printReport() {
 
-    let date = new Date().toLocaleString();
+    const date = new Date().toLocaleString();
 
-    let printWindow = window.open("", "", "width=900,height=700");
+    // Générer les lignes du tableau
+    const rows = stock.map(p => {
+        const isService = p.type === "Service";
+        const qtyInitial = isService ? "-" : (Number(p.quantiteInitiale) || 0);
+        const qty = isService ? "-" : (Number(p.quantite) || 0);
+        const prix = Number(p.prix) || 0;
+        const tva = Number(p.tva) || 0;
+        const total = isService ? prix : prix * qty;
 
-    let table = document.getElementById("stockTable").outerHTML;
+        return `
+            <tr>
+                <td>${p.nom || ""}</td>
+                <td>${p.codebarre || ""}</td>
+                <td>${p.categorie || ""}</td>
+                <td>${p.type || ""}</td>
+                <td>${prix.toFixed(2)} $</td>
+                <td>${qtyInitial}</td>
+                <td>${qty}</td>
+                <td>${tva}%</td>
+                <td>${total.toFixed(2)} $</td>
+            </tr>
+        `;
+    }).join("");
 
-    printWindow.document.write(`
+    // Ouvrir fenêtre d'impression
+    const w = window.open("", "", "width=1000,height=800");
+
+    // HTML + CSS minimal
+    w.document.write(`
         <html>
         <head>
             <title>Rapport Stock</title>
             <style>
-                body {
-                    font-family: Arial;
-                    padding: 20px;
-                }
-
-                h2 {
+                body { font-family: Arial; margin: 25px; }
+                h1, p { text-align: center; margin: 5px; }
+                .info { margin: 20px 0; font-size: 14px; }
+                table { width: 100%; border-collapse: collapse; font-size: 12px; }
+                th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+                th { background: #212529; color: white; }
+                tr:nth-child(even) { background: #f8f9fa; }
+                .footer {
+                    margin-top: 20px;
                     text-align: center;
-                }
-
-                .date {
-                    text-align: center;
-                    margin-bottom: 20px;
-                    color: gray;
-                }
-
-                table {
-                    width: 100%;
-                    border-collapse: collapse;
-                }
-
-                table, th, td {
-                    border: 1px solid black;
-                }
-
-                th, td {
-                    padding: 8px;
-                    text-align: center;
-                }
-
-                th {
-                    background: #000;
-                    color: #fff;
+                    font-size: 11px;
+                    color: #666;
                 }
             </style>
         </head>
-
         <body>
 
-            <h2>📦 Rapport Stock - HELPSTORE</h2>
-            <div class="date">Date: ${date}</div>
+            <h1>📦 HELPSTORE POS</h1>
+            <p>Rapport détaillé du stock</p>
+
+            <div class="info">
+                <strong>Entreprise :</strong> ${idEntreprise}<br>
+                <strong>Date :</strong> ${date}<br>
+                <strong>Total articles :</strong> ${stock.length}
+            </div>
 
             <table>
-                <thead>
-                    ${document.querySelector("thead").outerHTML}
-                </thead>
-                <tbody>
-                    ${table}
-                </tbody>
+                <tr>
+                    <th>Produit</th>
+                    <th>Code</th>
+                    <th>Catégorie</th>
+                    <th>Type</th>
+                    <th>Prix TTC</th>
+                    <th>Qté Initiale</th>
+                    <th>Qté Actuelle</th>
+                    <th>TVA</th>
+                    <th>Total TTC</th>
+                </tr>
+                ${rows}
             </table>
+
+            <div class="footer">
+                Document généré automatiquement par HELPSTORE POS
+            </div>
 
             <script>
                 window.print();
-                window.onafterprint = window.close;
+                window.onafterprint = () => window.close();
             <\/script>
 
         </body>
         </html>
     `);
 
-    printWindow.document.close();
+    w.document.close();
 }
 
 
