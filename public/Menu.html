@@ -107,9 +107,27 @@ function go(page) {
 // =====================
 // LOGOUT
 // =====================
-function logout() {
-  localStorage.clear();
-  window.location.href = "Login.html";
+async function logout() {
+
+  try {
+
+    await fetch("/logout", {
+      method: "POST",
+      credentials: "include"
+    });
+
+    localStorage.clear();
+
+    window.location.href = "Login.html";
+
+  } catch (err) {
+
+    console.log("Logout error:", err);
+
+    // même si erreur serveur, on force logout local
+    localStorage.clear();
+    window.location.href = "Login.html";
+  }
 }
 
 </script>

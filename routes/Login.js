@@ -142,4 +142,41 @@ router.post("/", async (req, res) => {
 
 });
 
+
+router.post("/logout", (req, res) => {
+
+  if (!req.session) {
+    return res.status(400).json({ msg: "Pas de session" });
+  }
+
+  req.session.destroy((err) => {
+
+    if (err) {
+      console.log("LOGOUT ERROR:", err);
+      return res.status(500).json({ msg: "Erreur logout" });
+    }
+
+    res.clearCookie("connect.sid"); // supprime cookie session
+
+    console.log("SESSION DESTROYED");
+
+    return res.json({
+      msg: "Déconnecté avec succès"
+    });
+
+  });
+
+});
+
+
+
+
+
+
+
+
+
+
+
+
 module.exports = router;
