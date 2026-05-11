@@ -68,7 +68,11 @@
 <div class="col-12 col-md-8">
 <div class="card p-3 shadow-sm">
 
-<div class="d-flex justify-content-end mb-2">
+<div class="d-flex justify-content-end gap-2 mb-2">
+    <button class="btn btn-success" onclick="exportExcel()">
+        📊 Exporter Excel
+    </button>
+
     <button class="btn btn-dark" onclick="printReport()">
         🖨 Imprimer rapport
     </button>
@@ -432,7 +436,49 @@ function printReport() {
 
 
 
+// ========================
+// EXPORT EXCEL
+// ========================
+function exportExcel() {
 
+    // Préparer les données
+    const data = stock.map(p => {
+
+        const isService = p.type === "Service";
+        const qty = isService ? 0 : Number(p.quantite) || 0;
+        const qtyInitial = isService ? 0 : Number(p.quantiteInitiale) || 0;
+        const prix = Number(p.prix) || 0;
+        const tva = Number(p.tva) || 0;
+        const totalTTC = isService ? prix : prix * qty;
+
+        return {
+            "Produit": p.nom || "",
+            "Code Barre": p.codebarre || "",
+            "Catégorie": p.categorie || "",
+            "Type": p.type || "",
+            "Prix TTC ($)": prix,
+            "Quantité Initiale": qtyInitial,
+            "Quantité Actuelle": qty,
+            "TVA (%)": tva,
+            "Total TTC ($)": totalTTC
+        };
+    });
+
+    // Créer workbook
+    const wb = XLSX.utils.book_new();
+
+    // Créer feuille
+    const ws = XLSX.utils.json_to_sheet(data);
+
+    // Ajouter feuille au workbook
+    XLSX.utils.book_append_sheet(wb, ws, "Stock");
+
+    // Nom du fichier avec date
+    const date = new Date().toISOString().slice(0, 10);
+
+    // Télécharger
+    XLSX.writeFile(wb, `Stock_${idEntreprise}_${date}.xlsx`);
+}
 
 
 
@@ -448,7 +494,7 @@ function printReport() {
 
 
 </script>
-
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
