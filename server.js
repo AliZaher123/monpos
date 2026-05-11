@@ -69,6 +69,39 @@ app.use(express.static(path.join(__dirname, "public")));
 
 
 
+
+
+
+
+
+app.get("/check-session", (req, res) => {
+
+  if (req.session && req.session.user) {
+    return res.json({
+      active: true,
+      user: req.session.user
+    });
+  }
+
+  return res.status(401).json({
+    active: false
+  });
+
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // ======================
 // ME ROUTE (DEBUG)
 // ======================
