@@ -52,6 +52,16 @@
 
         <hr>
 
+
+<div class="d-flex justify-content-end mb-3">
+  <button class="btn btn-success" onclick="exportExcel()">
+    📊 Exporter Excel
+  </button>
+</div>
+
+
+
+
         <h5 class="text-center text-md-start">Liste des catégories</h5>
         <ul class="list-group" id="categoryList"></ul>
 
@@ -139,8 +149,59 @@ async function charger() {
 // 🚀 démarrage
 charger();
 
+
+
+
+
+
+
+
+// 📊 Export Excel
+function exportExcel() {
+
+  let idEntreprise = verifierEntreprise();
+
+  // Préparer les données
+  const data = [];
+
+  document.querySelectorAll("#categoryList li span").forEach((span, index) => {
+    data.push({
+      "N°": index + 1,
+      "Catégorie": span.innerText,
+      "Entreprise": idEntreprise
+    });
+  });
+
+  // Créer le classeur Excel
+  const wb = XLSX.utils.book_new();
+
+  // Créer la feuille
+  const ws = XLSX.utils.json_to_sheet(data);
+
+  // Ajouter la feuille au classeur
+  XLSX.utils.book_append_sheet(wb, ws, "Categories");
+
+  // Nom du fichier avec date
+  const date = new Date().toISOString().slice(0, 10);
+
+  // Télécharger le fichier
+  XLSX.writeFile(wb, `Categories_${idEntreprise}_${date}.xlsx`);
+}
+
+
+
+
+
+
+
+
+
+
+
+
 </script>
 
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
