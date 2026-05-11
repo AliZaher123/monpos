@@ -640,8 +640,39 @@ if (settings.enableTVA) {
   `;
 }
 
-ticket += `<p>Payé: ${safePay.toFixed(2)} USD</p>`;
-ticket += `<p>Monnaie: ${safeChange.toFixed(2)} USD</p>`;
+// ======================
+// PAYÉ ET MONNAIE
+// ======================
+if (payCDF > 0 && payUSD === 0) {
+
+  // Paiement uniquement en CDF
+  const payCDFValue = payCDF;
+  const changeCDF = safeChange * rate;
+
+  ticket += `<p>Payé: ${payCDFValue.toLocaleString()} FC</p>`;
+  ticket += `<p>Monnaie: ${changeCDF.toLocaleString()} FC</p>`;
+
+} else if (payUSD > 0 && payCDF === 0) {
+
+  // Paiement uniquement en USD
+  ticket += `<p>Payé: ${payUSD.toFixed(2)} USD</p>`;
+  ticket += `<p>Monnaie: ${safeChange.toFixed(2)} USD</p>`;
+
+} else {
+
+  // Paiement mixte USD + CDF
+  if (payUSD > 0) {
+    ticket += `<p>Payé USD: ${payUSD.toFixed(2)} USD</p>`;
+  }
+
+  if (payCDF > 0) {
+    ticket += `<p>Payé CDF: ${payCDF.toLocaleString()} FC</p>`;
+  }
+
+  ticket += `<p>Monnaie: ${safeChange.toFixed(2)} USD</p>`;
+}
+
+
 ticket += `<p>Méthode: ${method}</p>`;
 
 if (remark && remark.trim() !== "") {
