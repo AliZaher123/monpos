@@ -121,6 +121,8 @@ app.get("/me", (req, res) => {
 // PUBLIC ROUTES
 // ======================
 app.use("/login", require("./routes/Login"));
+app.use("/logout", require("./routes/Logout"));
+
 app.use("/login-admin", require("./routes/Loginadmin"));
 app.use("/entreprises", require("./routes/Entreprise"));
 
