@@ -6,6 +6,9 @@
 <title>Remboursement Tickets</title>
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- CONFIG GLOBAL -->
+<script src="globalconfig.js"></script>
 </head>
 
 <body class="bg-light">
@@ -45,49 +48,57 @@
 
 <script>
 // =========================
-// 🔥 CONFIG API (Render)
+// 📦 API
 // =========================
-const API_VENTES = "/ventes";
-const API_REMBOURSEMENT = "/api/remboursement";
+const API_VENTES = `${API}/ventes`;
+const API_REMBOURSEMENT = `${API}/api/remboursement`;
 
 // =========================
-// 📦 LOAD VENTES
+// 🔁 LOAD VENTES
 // =========================
 async function loadVentes() {
     try {
-        const res = await fetch(API_VENTES);
-        const data = await res.json();
+        const res = await fetch(API_VENTES, {
+            credentials: "include"
+        });
 
+        const data = await res.json();
         renderVentes(data);
 
     } catch (err) {
-        console.log("❌ erreur ventes:", err);
+        console.log("❌ ventes error:", err);
+        document.getElementById("ticketList").innerHTML =
+            `<div class="p-3 text-danger text-center">Erreur chargement ventes</div>`;
     }
 }
 
 // =========================
-// 📦 LOAD REMBOURSEMENTS
+// 🔁 LOAD REMBOURSEMENTS
 // =========================
 async function loadRemboursements() {
     try {
-        const res = await fetch(API_REMBOURSEMENT);
-        const data = await res.json();
+        const res = await fetch(API_REMBOURSEMENT, {
+            credentials: "include"
+        });
 
+        const data = await res.json();
         renderRefunds(data);
 
     } catch (err) {
-        console.log("❌ erreur remboursements:", err);
+        console.log("❌ remboursements error:", err);
+        document.getElementById("refundList").innerHTML =
+            `<div class="p-3 text-danger text-center">Erreur chargement remboursements</div>`;
     }
 }
 
 // =========================
-// 🧾 AFFICHER VENTES
+// 🧾 VENTES UI
 // =========================
 function renderVentes(ventes) {
     const container = document.getElementById("ticketList");
     container.innerHTML = "";
 
-    if (!ventes.length) {
+    if (!ventes || ventes.length === 0) {
         container.innerHTML = `<div class="p-3 text-muted text-center">Aucune vente</div>`;
         return;
     }
@@ -110,13 +121,14 @@ function renderVentes(ventes) {
 }
 
 // =========================
-// 💸 REMBOURSER
+// 💸 REMBOURSEMENT
 // =========================
 async function refundTicket(id) {
     try {
 
         const res = await fetch(`${API_REMBOURSEMENT}/${id}`, {
             method: "POST",
+            credentials: "include",
             headers: {
                 "Content-Type": "application/json"
             }
@@ -135,18 +147,18 @@ async function refundTicket(id) {
         loadRemboursements();
 
     } catch (err) {
-        console.log("❌ erreur refund:", err);
+        console.log("❌ refund error:", err);
     }
 }
 
 // =========================
-// 📉 AFFICHER REMBOURSEMENTS
+// 📉 REMBOURSEMENTS UI
 // =========================
 function renderRefunds(refunds) {
     const container = document.getElementById("refundList");
     container.innerHTML = "";
 
-    if (!refunds.length) {
+    if (!refunds || refunds.length === 0) {
         container.innerHTML = `<div class="p-3 text-muted text-center">Aucun remboursement</div>`;
         return;
     }

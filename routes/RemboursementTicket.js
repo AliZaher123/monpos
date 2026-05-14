@@ -3,27 +3,13 @@ const router = express.Router();
 const mongoose = require("mongoose");
 
 // =========================
-// 💸 MODELE REMBOURSEMENT
+// MODEL
 // =========================
 const RemboursementSchema = new mongoose.Schema({
   idEntreprise: String,
-
-  venteId: {
-    type: mongoose.Schema.Types.ObjectId,
-    required: true
-  },
-
+  venteId: mongoose.Schema.Types.ObjectId,
   date: { type: Date, default: Date.now },
-
-  produits: [
-    {
-      nom: String,
-      prix: Number,
-      quantite: Number,
-      total: Number
-    }
-  ],
-
+  produits: Array,
   totalGeneral: Number
 });
 
@@ -34,57 +20,39 @@ const Remboursement =
 const Vente = mongoose.models.Vente;
 
 // =========================
-// 💸 REMBOURSER UNE VENTE
+// REMBOURSER
 // =========================
 router.post("/:id", async (req, res) => {
   try {
 
-    const venteId = req.params.id;
-
-    const vente = await Vente.findById(venteId);
+    const vente = await Vente.findById(req.params.id);
 
     if (!vente) {
       return res.status(404).json({ message: "Vente introuvable" });
     }
 
-    // =========================
-    // 💾 SAVE REMBOURSEMENT
-    // =========================
-    const remboursement = await Remboursement.create({
+    await Remboursement.create({
       idEntreprise: vente.idEntreprise,
       venteId: vente._id,
       produits: vente.produits,
       totalGeneral: vente.totalGeneral
     });
 
-    // =========================
-    // 🗑️ SUPPRIMER VENTE
-    // =========================
-    await Vente.findByIdAndDelete(venteId);
+    await Vente.findByIdAndDelete(req.params.id);
 
-    console.log("💸 REMBOURSEMENT OK:", remboursement._id);
+    res.json({ message: "Remboursement effectué" });
 
-    res.json({
-      message: "Remboursement effectué",
-      id: remboursement._id
-    });
-
-  } catch (error) {
-    console.log("❌ ERREUR REMBOURSEMENT:", error);
-    res.status(500).json({ error: error.message });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 
 // =========================
-// 📦 GET REMBOURSEMENTS
+// LISTE REMBOURSEMENTS
 // =========================
 router.get("/", async (req, res) => {
-  try {
-    const data = await Remboursement.find().sort({ date: -1 });
-    res.json(data);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+  const data = await Remboursement.find().sort({ date: -1 });
+  res.json(data);
 });
 
 module.exports = router;
