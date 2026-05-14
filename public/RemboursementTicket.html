@@ -117,10 +117,13 @@ async function loadVentes(dateDebut = "", dateFin = "") {
         renderVentes(data);
 
     } catch (err) {
-        console.log("❌ ventes error:", err);
-        document.getElementById("ticketList").innerHTML =
-            `<div class="p-3 text-danger text-center">Erreur chargement ventes</div>`;
-    }
+    console.log("❌ ERROR FULL (VENTES):", err);
+
+    document.getElementById("ticketList").innerHTML =
+        `<div class="p-3 text-danger text-center">
+            Erreur chargement ventes
+        </div>`;
+}
 }
 
 // =========================
@@ -154,11 +157,13 @@ async function loadRemboursements(dateDebut = "", dateFin = "") {
         renderRefunds(data);
 
     } catch (err) {
-        console.log("❌ remboursements error:", err);
+    console.log("❌ ERROR FULL (REMBOURSEMENTS):", err);
 
-        document.getElementById("refundList").innerHTML =
-            `<div class="p-3 text-danger text-center">Erreur chargement remboursements</div>`;
-    }
+    document.getElementById("refundList").innerHTML =
+        `<div class="p-3 text-danger text-center">
+            Erreur chargement remboursements
+        </div>`;
+}
 }
 
 // =========================
