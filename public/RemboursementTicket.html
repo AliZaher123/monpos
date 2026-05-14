@@ -140,7 +140,7 @@ function renderVentes(ventes) {
             </ul>
 
             <div class="d-flex justify-content-between align-items-center">
-                <strong>Total: ${v.totalGeneral} FC</strong>
+                <strong>Total: ${v.totalGeneral} $</strong>
 
                 <button class="btn btn-sm btn-danger"
                     onclick="refundTicket('${v._id}')">
@@ -201,7 +201,7 @@ function renderRefunds(refunds) {
         <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
             <div>
                 <strong>Ticket</strong><br>
-                <small class="text-muted">${r.totalGeneral} FC</small>
+                <small class="text-muted">${r.totalGeneral} $</small>
             </div>
 
             <span class="badge bg-danger">Remboursé</span>
