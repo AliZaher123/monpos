@@ -133,14 +133,19 @@ router.get("/", async (req, res) => {
 
     const { idEntreprise } = req.query;
 
-    const filter = idEntreprise ? { idEntreprise } : {};
+    if (!idEntreprise) {
+      return res.status(400).json({
+        message: "idEntreprise requis"
+      });
+    }
 
-    const ventes = await Vente.find(filter)
+    const ventes = await Vente.find({ idEntreprise })
       .sort({ date: -1 });
 
     res.json(ventes);
 
   } catch (error) {
+    console.log("❌ ERREUR GET VENTES:", error);
     res.status(500).json({ error: error.message });
   }
 });

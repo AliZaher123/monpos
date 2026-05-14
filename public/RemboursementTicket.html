@@ -58,7 +58,11 @@ const API_REMBOURSEMENT = `${API}/api/remboursement`;
 // =========================
 async function loadVentes() {
     try {
-        const res = await fetch(API_VENTES, {
+
+        // 🔥 récupère l'entreprise connectée
+        const idEntreprise = localStorage.getItem("idEntreprise");
+
+        const res = await fetch(`${API_VENTES}?idEntreprise=${idEntreprise}`, {
             credentials: "include"
         });
 
@@ -77,7 +81,10 @@ async function loadVentes() {
 // =========================
 async function loadRemboursements() {
     try {
-        const res = await fetch(API_REMBOURSEMENT, {
+
+        const idEntreprise = localStorage.getItem("idEntreprise");
+
+        const res = await fetch(`${API_REMBOURSEMENT}?idEntreprise=${idEntreprise}`, {
             credentials: "include"
         });
 
@@ -86,8 +93,6 @@ async function loadRemboursements() {
 
     } catch (err) {
         console.log("❌ remboursements error:", err);
-        document.getElementById("refundList").innerHTML =
-            `<div class="p-3 text-danger text-center">Erreur chargement remboursements</div>`;
     }
 }
 

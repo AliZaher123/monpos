@@ -51,8 +51,24 @@ router.post("/:id", async (req, res) => {
 // LISTE REMBOURSEMENTS
 // =========================
 router.get("/", async (req, res) => {
-  const data = await Remboursement.find().sort({ date: -1 });
-  res.json(data);
+  try {
+
+    const { idEntreprise } = req.query;
+
+    if (!idEntreprise) {
+      return res.status(400).json({
+        message: "idEntreprise requis"
+      });
+    }
+
+    const data = await Remboursement.find({ idEntreprise })
+      .sort({ date: -1 });
+
+    res.json(data);
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 module.exports = router;
