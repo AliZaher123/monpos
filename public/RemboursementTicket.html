@@ -17,6 +17,36 @@
 
     <h3 class="mb-4">💳 Remboursement des Tickets</h3>
 
+    <!-- ===================================== -->
+    <!-- 🔍 FILTRE PAR DATE -->
+    <!-- ===================================== -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="row g-3 align-items-end">
+
+                <!-- Date début -->
+                <div class="col-md-4">
+                    <label class="form-label">Date début</label>
+                    <input type="date" class="form-control" id="dateDebut">
+                </div>
+
+                <!-- Date fin -->
+                <div class="col-md-4">
+                    <label class="form-label">Date fin</label>
+                    <input type="date" class="form-control" id="dateFin">
+                </div>
+
+                <!-- Bouton afficher -->
+                <div class="col-md-4 d-grid">
+                    <button class="btn btn-primary" onclick="filtrerRemboursements()">
+                        Afficher
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
     <div class="row g-3">
 
         <!-- VENTES -->
@@ -59,7 +89,6 @@ const API_REMBOURSEMENT = `${API}/api/remboursement`;
 async function loadVentes() {
     try {
 
-        // 🔥 récupère l'entreprise connectée
         const idEntreprise = localStorage.getItem("idEntreprise");
 
         const res = await fetch(`${API_VENTES}?idEntreprise=${idEntreprise}`, {
@@ -79,21 +108,49 @@ async function loadVentes() {
 // =========================
 // 🔁 LOAD REMBOURSEMENTS
 // =========================
-async function loadRemboursements() {
+async function loadRemboursements(dateDebut = "", dateFin = "") {
     try {
 
         const idEntreprise = localStorage.getItem("idEntreprise");
 
-        const res = await fetch(`${API_REMBOURSEMENT}?idEntreprise=${idEntreprise}`, {
-            credentials: "include"
+        const params = new URLSearchParams({
+            idEntreprise
         });
+
+        if (dateDebut) {
+            params.append("dateDebut", dateDebut);
+        }
+
+        if (dateFin) {
+            params.append("dateFin", dateFin);
+        }
+
+        const res = await fetch(
+            `${API_REMBOURSEMENT}?${params.toString()}`,
+            {
+                credentials: "include"
+            }
+        );
 
         const data = await res.json();
         renderRefunds(data);
 
     } catch (err) {
         console.log("❌ remboursements error:", err);
+
+        document.getElementById("refundList").innerHTML =
+            `<div class="p-3 text-danger text-center">Erreur chargement remboursements</div>`;
     }
+}
+
+// =========================
+// 🔍 FILTRER REMBOURSEMENTS
+// =========================
+function filtrerRemboursements() {
+    const dateDebut = document.getElementById("dateDebut").value;
+    const dateFin = document.getElementById("dateFin").value;
+
+    loadRemboursements(dateDebut, dateFin);
 }
 
 // =========================
@@ -104,7 +161,8 @@ function renderVentes(ventes) {
     container.innerHTML = "";
 
     if (!ventes || ventes.length === 0) {
-        container.innerHTML = `<div class="p-3 text-muted text-center">Aucune vente</div>`;
+        container.innerHTML =
+            `<div class="p-3 text-muted text-center">Aucune vente</div>`;
         return;
     }
 
@@ -112,13 +170,15 @@ function renderVentes(ventes) {
 
         let produitsHTML = "";
 
-        v.produits.forEach(p => {
-            produitsHTML += `
-                <li class="small">
-                    ${p.nom} - ${p.quantite} x ${p.prix} FC = ${p.total} FC
-                </li>
-            `;
-        });
+        if (v.produits && Array.isArray(v.produits)) {
+            v.produits.forEach(p => {
+                produitsHTML += `
+                    <li class="small">
+                        ${p.nom} - ${p.quantite} x ${p.prix} $ = ${p.total} $
+                    </li>
+                `;
+            });
+        }
 
         container.innerHTML += `
         <div class="border-bottom p-3">
@@ -142,7 +202,8 @@ function renderVentes(ventes) {
             <div class="d-flex justify-content-between align-items-center">
                 <strong>Total: ${v.totalGeneral} $</strong>
 
-                <button class="btn btn-sm btn-danger"
+                <button
+                    class="btn btn-sm btn-danger"
                     onclick="refundTicket('${v._id}')">
                     Rembourser
                 </button>
@@ -176,11 +237,13 @@ async function refundTicket(id) {
 
         alert("✅ Remboursement effectué");
 
+        // Recharger les listes
         loadVentes();
-        loadRemboursements();
+        filtrerRemboursements();
 
     } catch (err) {
         console.log("❌ refund error:", err);
+        alert("Erreur lors du remboursement");
     }
 }
 
@@ -192,19 +255,45 @@ function renderRefunds(refunds) {
     container.innerHTML = "";
 
     if (!refunds || refunds.length === 0) {
-        container.innerHTML = `<div class="p-3 text-muted text-center">Aucun remboursement</div>`;
+        container.innerHTML =
+            `<div class="p-3 text-muted text-center">Aucun remboursement</div>`;
         return;
     }
 
     refunds.forEach(r => {
+
+        let produitsHTML = "";
+
+        if (r.produits && Array.isArray(r.produits)) {
+            r.produits.forEach(p => {
+                produitsHTML += `
+                    <li class="small">
+                        ${p.nom} - ${p.quantite} x ${p.prix} $ = ${p.total} $
+                    </li>
+                `;
+            });
+        }
+
         container.innerHTML += `
-        <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
-            <div>
-                <strong>Ticket</strong><br>
-                <small class="text-muted">${r.totalGeneral} $</small>
+        <div class="border-bottom p-3">
+
+            <div class="mb-2">
+                <strong>Ticket remboursé</strong><br>
+
+                <small class="text-muted">
+                    Date: ${new Date(r.date).toLocaleString()}
+                </small>
             </div>
 
-            <span class="badge bg-danger">Remboursé</span>
+            <ul class="mb-2">
+                ${produitsHTML}
+            </ul>
+
+            <div class="d-flex justify-content-between align-items-center">
+                <strong>Total: ${r.totalGeneral} $</strong>
+                <span class="badge bg-danger">Remboursé</span>
+            </div>
+
         </div>
         `;
     });

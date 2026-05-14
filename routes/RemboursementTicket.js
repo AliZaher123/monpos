@@ -20,17 +20,19 @@ const Remboursement =
 const Vente = mongoose.models.Vente;
 
 // =========================
-// REMBOURSER
+// REMBOURSER UNE VENTE
 // =========================
 router.post("/:id", async (req, res) => {
   try {
-
     const vente = await Vente.findById(req.params.id);
 
     if (!vente) {
-      return res.status(404).json({ message: "Vente introuvable" });
+      return res.status(404).json({
+        message: "Vente introuvable"
+      });
     }
 
+    // Enregistrer dans la collection Remboursement
     await Remboursement.create({
       idEntreprise: vente.idEntreprise,
       venteId: vente._id,
@@ -38,22 +40,28 @@ router.post("/:id", async (req, res) => {
       totalGeneral: vente.totalGeneral
     });
 
+    // Supprimer de la collection Vente
     await Vente.findByIdAndDelete(req.params.id);
 
-    res.json({ message: "Remboursement effectué" });
+    res.json({
+      message: "Remboursement effectué"
+    });
 
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({
+      error: err.message
+    });
   }
 });
 
 // =========================
 // LISTE REMBOURSEMENTS
+// + FILTRE PAR ENTREPRISE
+// + FILTRE PAR DATE
 // =========================
 router.get("/", async (req, res) => {
   try {
-
-    const { idEntreprise } = req.query;
+    const { idEntreprise, dateDebut, dateFin } = req.query;
 
     if (!idEntreprise) {
       return res.status(400).json({
@@ -61,13 +69,35 @@ router.get("/", async (req, res) => {
       });
     }
 
-    const data = await Remboursement.find({ idEntreprise })
+    // Filtre de base
+    const filtre = {
+      idEntreprise
+    };
+
+    // Filtre par dates (optionnel)
+    if (dateDebut || dateFin) {
+      filtre.date = {};
+
+      if (dateDebut) {
+        // Début de journée
+        filtre.date.$gte = new Date(dateDebut + "T00:00:00");
+      }
+
+      if (dateFin) {
+        // Fin de journée
+        filtre.date.$lte = new Date(dateFin + "T23:59:59.999");
+      }
+    }
+
+    const data = await Remboursement.find(filtre)
       .sort({ date: -1 });
 
     res.json(data);
 
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({
+      error: err.message
+    });
   }
 });
 
