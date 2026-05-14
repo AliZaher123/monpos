@@ -117,8 +117,7 @@ async function loadVentes(dateDebut = "", dateFin = "") {
         renderVentes(data);
 
     } catch (err) {
-    console.log("❌ ERROR FULL (VENTES):", err);
-
+        alert("VENTES: " + err.message);
     document.getElementById("ticketList").innerHTML =
         `<div class="p-3 text-danger text-center">
             Erreur chargement ventes
@@ -157,7 +156,7 @@ async function loadRemboursements(dateDebut = "", dateFin = "") {
         renderRefunds(data);
 
     } catch (err) {
-    console.log("❌ ERROR FULL (REMBOURSEMENTS):", err);
+    alert("REMBOURSEMENTS: " + err.message);
 
     document.getElementById("refundList").innerHTML =
         `<div class="p-3 text-danger text-center">
