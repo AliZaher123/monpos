@@ -1,8 +1,22 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const bcrypt = require("bcrypt"); // 🔐 ajout
+const bcrypt = require("bcrypt");
 
 const router = express.Router();
+
+
+// ======================
+// 🔥 EXPIRATION LOGIC
+// ======================
+function isExpired(entreprise) {
+  const createdAt = new Date(entreprise.createdAt);
+
+  const expireAt = new Date(createdAt);
+  expireAt.setDate(expireAt.getDate() + (entreprise.duration || 7));
+
+  return new Date() > expireAt;
+}
+
 
 // ======================
 // 👤 USER SCHEMA
@@ -12,6 +26,7 @@ const userSchema = new mongoose.Schema({
   password: String,
   role: String
 }, { _id: false });
+
 
 // ======================
 // 🏢 ENTREPRISE SCHEMA
@@ -33,6 +48,7 @@ const Entreprise =
   mongoose.models.entreprises ||
   mongoose.model("entreprises", entrepriseSchema);
 
+
 // ======================
 // ➕ CREATE ENTREPRISE
 // ======================
@@ -42,11 +58,9 @@ router.post("/", async (req, res) => {
     const entreprise = await Entreprise.create({
       _id: req.body._id,
       name: req.body.name,
-
       plan: req.body.plan || "free",
       duration: Number(req.body.duration || 7),
       note: req.body.note || "",
-
       createdAt: new Date(),
       users: []
     });
@@ -58,6 +72,7 @@ router.post("/", async (req, res) => {
   }
 });
 
+
 // ======================
 // 📄 GET ALL ENTREPRISES
 // ======================
@@ -65,7 +80,6 @@ router.get("/", async (req, res) => {
   try {
 
     const data = await Entreprise.find();
-    const now = new Date();
 
     const result = data.map(c => {
 
@@ -77,16 +91,15 @@ router.get("/", async (req, res) => {
       return {
         _id: c._id,
         name: c.name,
-
         plan: c.plan,
         duration: c.duration,
         note: c.note,
-
         users: c.users || [],
-
         createdAt,
         expireAt: expireAt.toISOString(),
-        status: expireAt < now ? "expired" : "active"
+
+        // 🔥 IMPORTANT
+        expired: isExpired(c)
       };
     });
 
@@ -97,41 +110,9 @@ router.get("/", async (req, res) => {
   }
 });
 
-// ======================
-// 👤 ADD USER (🔐 HASH)
-// ======================
-router.post("/:id/user", async (req, res) => {
-  try {
-
-    const entreprise = await Entreprise.findById(req.params.id);
-    if (!entreprise)
-      return res.status(404).json({ msg: "Entreprise introuvable" });
-
-    // ✅ éviter doublon
-    const exist = entreprise.users.find(u => u.user === req.body.user);
-    if (exist)
-      return res.status(400).json({ msg: "Utilisateur existe déjà" });
-
-    // 🔐 HASH PASSWORD
-    const hashedPassword = await bcrypt.hash(req.body.password, 10);
-
-    entreprise.users.push({
-      user: req.body.user,
-      password: hashedPassword,
-      role: req.body.role || "user"
-    });
-
-    await entreprise.save();
-
-    res.json({ success: true, entreprise });
-
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
 
 // ======================
-// 🔐 LOGIN USER
+// 🔐 LOGIN USER (BLOQUÉ SI EXPIRÉ)
 // ======================
 router.post("/:id/login", async (req, res) => {
   try {
@@ -142,11 +123,15 @@ router.post("/:id/login", async (req, res) => {
     if (!entreprise)
       return res.status(404).json({ msg: "Entreprise introuvable" });
 
+    // 🔥 BLOCK EXPIRATION
+    if (isExpired(entreprise)) {
+      return res.status(403).json({ msg: "⛔ Abonnement entreprise expiré. Veuillez renouveler." });
+    }
+
     const foundUser = entreprise.users.find(u => u.user === user);
     if (!foundUser)
       return res.status(401).json({ msg: "Utilisateur introuvable" });
 
-    // 🔐 comparer password
     const isMatch = await bcrypt.compare(password, foundUser.password);
 
     if (!isMatch)
@@ -165,6 +150,102 @@ router.post("/:id/login", async (req, res) => {
   }
 });
 
+
+// ======================
+// 👤 ADD USER
+// ======================
+router.post("/:id/user", async (req, res) => {
+  try {
+
+    const entreprise = await Entreprise.findById(req.params.id);
+    if (!entreprise)
+      return res.status(404).json({ msg: "Entreprise introuvable" });
+
+    if (isExpired(entreprise)) {
+      return res.status(403).json({ msg: "Entreprise expirée" });
+    }
+
+    const exist = entreprise.users.find(u => u.user === req.body.user);
+    if (exist)
+      return res.status(400).json({ msg: "Utilisateur existe déjà" });
+
+    const hashedPassword = await bcrypt.hash(req.body.password, 10);
+
+    entreprise.users.push({
+      user: req.body.user,
+      password: hashedPassword,
+      role: req.body.role || "user"
+    });
+
+    await entreprise.save();
+
+    res.json({ success: true, entreprise });
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+// ======================
+// ✏️ UPDATE ENTREPRISE
+// ======================
+router.put("/:id", async (req, res) => {
+  try {
+
+    const entreprise = await Entreprise.findById(req.params.id);
+    if (!entreprise)
+      return res.status(404).json({ msg: "Entreprise introuvable" });
+
+    if (req.body.name) entreprise.name = req.body.name;
+    if (req.body.plan) entreprise.plan = req.body.plan;
+    if (req.body.duration) entreprise.duration = req.body.duration;
+    if (req.body.note !== undefined) entreprise.note = req.body.note;
+
+    await entreprise.save();
+
+    res.json({ success: true, entreprise });
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+// ======================
+// ✏️ UPDATE USER
+// ======================
+router.put("/:id/user/:username", async (req, res) => {
+  try {
+
+    const entreprise = await Entreprise.findById(req.params.id);
+    if (!entreprise)
+      return res.status(404).json({ msg: "Entreprise introuvable" });
+
+    const existingUser = entreprise.users.find(
+      u => u.user === req.params.username
+    );
+
+    if (!existingUser)
+      return res.status(404).json({ msg: "User introuvable" });
+
+    if (req.body.user) existingUser.user = req.body.user;
+    if (req.body.role) existingUser.role = req.body.role;
+
+    if (req.body.password) {
+      existingUser.password = await bcrypt.hash(req.body.password, 10);
+    }
+
+    await entreprise.save();
+
+    res.json({ success: true });
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
 // ======================
 // 🗑️ DELETE USER
 // ======================
@@ -181,12 +262,13 @@ router.delete("/:id/user/:username", async (req, res) => {
 
     await entreprise.save();
 
-    res.json({ success: true, entreprise });
+    res.json({ success: true });
 
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
+
 
 // ======================
 // 🗑️ DELETE ENTREPRISE
@@ -196,11 +278,12 @@ router.delete("/:id", async (req, res) => {
 
     await Entreprise.findByIdAndDelete(req.params.id);
 
-    res.json({ success: true, msg: "Entreprise supprimée" });
+    res.json({ success: true });
 
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
+
 
 module.exports = router;
