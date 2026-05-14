@@ -1,32 +1,37 @@
 // routes/CheckExpirEntre.js
 
-// ⚠️ Adapte ce chemin selon l'emplacement réel de ton modèle.
-// Si ton modèle Entreprise.js est dans routes/, garde "./Entreprise".
-// S'il est dans models/, remplace par "../models/Entreprise".
-const Entreprise = require("./Entreprise");
+const Entreprise = require("./Entreprise"); 
+// ⚠️ adapte si ton modèle est dans ../models/Entreprise
 
 // ======================
-// Vérifie si l'entreprise est expirée
+// 🔥 EXPIRATION LOGIC (SAME AS LOGIN)
 // ======================
 function isExpired(entreprise) {
-    const createdAt = new Date(entreprise.createdAt);
 
-    // Date d'expiration = createdAt + duration jours
+    if (!entreprise) return true;
+
+    const createdAt = entreprise.createdAt
+        ? new Date(entreprise.createdAt)
+        : new Date();
+
+    const duration = Number(entreprise.duration ?? 7);
+
     const expireAt = new Date(createdAt);
-    expireAt.setDate(
-        expireAt.getDate() + (entreprise.duration || 7)
-    );
+    expireAt.setDate(expireAt.getDate() + duration);
 
-    // Retourne true si la date actuelle dépasse la date d'expiration
     return new Date() > expireAt;
 }
 
 // ======================
-// Middleware principal
+// 🛡️ MIDDLEWARE PROTECTOR
 // ======================
 async function CheckExpirEntre(req, res, next) {
+
     try {
-        // 1. Vérifier que la session existe
+
+        // ======================
+        // 🔐 CHECK SESSION
+        // ======================
         if (!req.session || !req.session.user) {
             return res.status(401).json({
                 success: false,
@@ -34,17 +39,18 @@ async function CheckExpirEntre(req, res, next) {
             });
         }
 
-        // 2. Vérifier que l'utilisateur possède une entreprise
         const entrepriseId = req.session.user.entrepriseId;
 
         if (!entrepriseId) {
             return res.status(401).json({
                 success: false,
-                message: "Aucune entreprise associée"
+                message: "Entreprise non définie"
             });
         }
 
-        // 3. Rechercher l'entreprise dans MongoDB
+        // ======================
+        // 🔎 FETCH ENTREPRISE
+        // ======================
         const entreprise = await Entreprise.findById(entrepriseId);
 
         if (!entreprise) {
@@ -54,8 +60,11 @@ async function CheckExpirEntre(req, res, next) {
             });
         }
 
-        // 4. Vérifier si l'abonnement a expiré
+        // ======================
+        // ⛔ EXPIRATION CHECK
+        // ======================
         if (isExpired(entreprise)) {
+
             return res.status(403).json({
                 success: false,
                 expired: true,
@@ -63,14 +72,19 @@ async function CheckExpirEntre(req, res, next) {
             });
         }
 
-        // 5. Mettre l'entreprise à disposition des routes suivantes
+        // ======================
+        // 📦 ATTACH DATA
+        // ======================
         req.entreprise = entreprise;
 
-        // 6. Continuer vers la route demandée
+        // ======================
+        // ✅ CONTINUE
+        // ======================
         next();
 
     } catch (error) {
-        console.error("Erreur CheckExpirEntre :", error);
+
+        console.error("CheckExpirEntre error:", error);
 
         return res.status(500).json({
             success: false,
@@ -79,5 +93,4 @@ async function CheckExpirEntre(req, res, next) {
     }
 }
 
-// Export du middleware
 module.exports = CheckExpirEntre;

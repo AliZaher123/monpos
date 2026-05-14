@@ -4,6 +4,40 @@ const bcrypt = require("bcrypt");
 
 const router = express.Router();
 
+
+
+// ======================
+// ⛔ EXPIRATION FUNCTION (ICI EN HAUT)
+// ======================
+function isExpired(entreprise) {
+  if (!entreprise || !entreprise.createdAt) {
+    return true;
+  }
+
+  const createdAt = new Date(entreprise.createdAt);
+  const duration = Number(entreprise.duration ?? 7);
+
+  const expireAt = new Date(createdAt);
+  expireAt.setDate(expireAt.getDate() + duration);
+
+  return new Date() > expireAt;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // ======================
 // 🧠 USER SCHEMA
 // ======================
@@ -19,6 +53,11 @@ const userSchema = new mongoose.Schema({
 const entrepriseSchema = new mongoose.Schema({
   _id: String,
   name: String,
+
+  // 🔥 AJOUT ICI
+  createdAt: { type: Date, default: Date.now },
+  duration: { type: Number, default: 7 },
+
   users: { type: [userSchema], default: [] }
 });
 
@@ -41,22 +80,23 @@ router.post("/", async (req, res) => {
       });
     }
 
-    const entreprise = await Entreprise.findById(entrepriseId);
+const entreprise = await Entreprise.findById(entrepriseId);
 
-    if (!entreprise) {
-      return res.status(404).json({
-        msg: "Entreprise introuvable"
-      });
-    }
+if (!entreprise) {
+  return res.status(404).json({
+    msg: "Entreprise introuvable"
+  });
+}
 
-    // ✅ CHECK EXPIRATION ICI (BON ENDROIT)
-    if (isExpired(entreprise)) {
-      return res.status(403).json({
-        success: false,
-        expired: true,
-        msg: "Votre abonnement a expiré"
-      });
-    }
+// ⛔ CHECK EXPIRATION (UNE SEULE FOIS)
+if (isExpired(entreprise)) {
+  return res.status(403).json({
+    success: false,
+    expired: true,
+    msg: "Votre abonnement a expiré"
+  });
+}
+ 
 
     const foundUser = entreprise.users.find(
       u => u.user === user
@@ -120,20 +160,6 @@ router.post("/", async (req, res) => {
 
 });
 
-// ======================
-// ⛔ EXPIRATION FUNCTION (EN HAUT)
-// ======================
-function isExpired(entreprise) {
-  if (!entreprise.createdAt) return false;
 
-  const createdAt = new Date(entreprise.createdAt);
-  const expireAt = new Date(createdAt);
-
-  expireAt.setDate(
-    expireAt.getDate() + (entreprise.duration || 7)
-  );
-
-  return new Date() > expireAt;
-}
 
 module.exports = router;

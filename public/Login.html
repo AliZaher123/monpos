@@ -60,54 +60,52 @@ async function login() {
   try {
 
     // 🔥 CORRECTION IMPORTANTE : BON ENDPOINT
-    const res = await fetch(`${API_LOGIN}/login`, {
+const res = await fetch(`${API_LOGIN}/login`, {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  credentials: "include",
+  body: JSON.stringify({
+    entrepriseId,
+    user,
+    password
+  })
+});
 
-      method: "POST",
+const data = await res.json();
 
-      headers: {
-        "Content-Type": "application/json"
-      },
+// =========================
+// ❌ ERREUR OU EXPIRATION
+// =========================
+if (!res.ok) {
 
-      credentials: "include", // 🔥 OBLIGATOIRE POUR SESSION
+  if (data.expired) {
+    msg.innerHTML = "<span class='text-danger'>⛔ Votre abonnement a expiré</span>";
+  } else {
+    msg.innerHTML = `<span class='text-danger'>${data.msg}</span>`;
+  }
 
-      body: JSON.stringify({
-        entrepriseId,
-        user,
-        password
-      })
-
-    });
-
-    const data = await res.json();
-
-   if (data.expired) {
-    msg.innerHTML =
-        "<span class='text-danger'>Votre abonnement a expiré.</span>";
-    return;
+  return;
 }
 
-    // =========================
-    // LOCAL STORAGE
-    // =========================
-    localStorage.setItem("idEntreprise", entrepriseId);
-    localStorage.setItem("user", data.user.name);
-    localStorage.setItem("role", data.user.role);
-    localStorage.setItem("isLoggedIn", "true");
+// =========================
+// ✔ SUCCESS LOGIN
+// =========================
+localStorage.setItem("idEntreprise", entrepriseId);
+localStorage.setItem("user", data.user.name);
+localStorage.setItem("role", data.user.role);
+localStorage.setItem("isLoggedIn", "true");
 
-    msg.innerHTML = "<span class='text-success'>Connexion réussie ✔</span>";
+msg.innerHTML = "<span class='text-success'>Connexion réussie ✔</span>";
 
-    // =========================
-    // REDIRECTION
-    // =========================
-    setTimeout(() => {
-
-      if (data.user.role === "admin") {
-        window.location.href = "Menu.html";
-      } else {
-        window.location.href = "Index.html";
-      }
-
-    }, 800);
+setTimeout(() => {
+  if (data.user.role === "admin") {
+    window.location.href = "Menu.html";
+  } else {
+    window.location.href = "Index.html";
+  }
+}, 800);
 
   } catch (err) {
     console.error(err);
