@@ -126,4 +126,33 @@ router.post("/", async (req, res) => {
   }
 });
 
+
+
+router.get("/", async (req, res) => {
+  try {
+
+    const { idEntreprise } = req.query;
+
+    const filter = idEntreprise ? { idEntreprise } : {};
+
+    const ventes = await Vente.find(filter)
+      .sort({ date: -1 });
+
+    res.json(ventes);
+
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
+
+
+
+
+
+
+
+
+
 module.exports = router;
