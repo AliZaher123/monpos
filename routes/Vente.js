@@ -130,8 +130,7 @@ router.post("/", async (req, res) => {
 
 router.get("/", async (req, res) => {
   try {
-
-    const { idEntreprise } = req.query;
+    const { idEntreprise, dateDebut, dateFin } = req.query;
 
     if (!idEntreprise) {
       return res.status(400).json({
@@ -139,14 +138,36 @@ router.get("/", async (req, res) => {
       });
     }
 
-    const ventes = await Vente.find({ idEntreprise })
+    // Filtre de base
+    const filtre = {
+      idEntreprise
+    };
+
+    // Filtre par dates (optionnel)
+    if (dateDebut || dateFin) {
+      filtre.date = {};
+
+      if (dateDebut) {
+        // Début de journée
+        filtre.date.$gte = new Date(dateDebut + "T00:00:00");
+      }
+
+      if (dateFin) {
+        // Fin de journée
+        filtre.date.$lte = new Date(dateFin + "T23:59:59.999");
+      }
+    }
+
+    const ventes = await Vente.find(filtre)
       .sort({ date: -1 });
 
     res.json(ventes);
 
   } catch (error) {
     console.log("❌ ERREUR GET VENTES:", error);
-    res.status(500).json({ error: error.message });
+    res.status(500).json({
+      error: error.message
+    });
   }
 });
 
