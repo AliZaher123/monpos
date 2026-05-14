@@ -80,10 +80,11 @@ async function login() {
 
     const data = await res.json();
 
-    if (!res.ok) {
-      msg.innerHTML = `<span class="text-danger">${data.msg}</span>`;
-      return;
-    }
+   if (data.expired) {
+    msg.innerHTML =
+        "<span class='text-danger'>Votre abonnement a expiré.</span>";
+    return;
+}
 
     // =========================
     // LOCAL STORAGE

@@ -35,18 +35,12 @@ router.post("/", async (req, res) => {
 
     const { entrepriseId, user, password } = req.body;
 
-    // ======================
-    // ❌ champs manquants
-    // ======================
     if (!entrepriseId || !user || !password) {
       return res.status(400).json({
         msg: "Champs manquants"
       });
     }
 
-    // ======================
-    // 🔎 entreprise
-    // ======================
     const entreprise = await Entreprise.findById(entrepriseId);
 
     if (!entreprise) {
@@ -55,9 +49,15 @@ router.post("/", async (req, res) => {
       });
     }
 
-    // ======================
-    // 🔎 user
-    // ======================
+    // ✅ CHECK EXPIRATION ICI (BON ENDROIT)
+    if (isExpired(entreprise)) {
+      return res.status(403).json({
+        success: false,
+        expired: true,
+        msg: "Votre abonnement a expiré"
+      });
+    }
+
     const foundUser = entreprise.users.find(
       u => u.user === user
     );
@@ -68,9 +68,6 @@ router.post("/", async (req, res) => {
       });
     }
 
-    // ======================
-    // 🔐 password check
-    // ======================
     const isMatch = await bcrypt.compare(
       password,
       foundUser.password
@@ -82,13 +79,9 @@ router.post("/", async (req, res) => {
       });
     }
 
-    // ======================
-    // 🔥 SESSION PROPRE (RENDER SAFE)
-    // ======================
     req.session.regenerate((err) => {
 
       if (err) {
-        console.log("SESSION REGENERATE ERROR:", err);
         return res.status(500).json({
           msg: "Session error"
         });
@@ -100,27 +93,14 @@ router.post("/", async (req, res) => {
         role: foundUser.role
       };
 
-      // ======================
-      // 💾 SAVE SESSION
-      // ======================
       req.session.save((err) => {
 
         if (err) {
-          console.log("SESSION SAVE ERROR:", err);
           return res.status(500).json({
             msg: "Erreur session"
           });
         }
 
-        // ======================
-        // 🔥 DEBUG LOGS
-        // ======================
-        console.log("LOGIN sessionID:", req.sessionID);
-        console.log("LOGIN user:", req.session.user);
-
-        // ======================
-        // ✅ RESPONSE FRONTEND
-        // ======================
         return res.json({
           msg: "Connexion réussie",
           user: req.session.user
@@ -131,17 +111,29 @@ router.post("/", async (req, res) => {
     });
 
   } catch (err) {
-
     console.log(err);
 
     res.status(500).json({
       error: err.message
     });
-
   }
 
 });
 
+// ======================
+// ⛔ EXPIRATION FUNCTION (EN HAUT)
+// ======================
+function isExpired(entreprise) {
+  if (!entreprise.createdAt) return false;
 
+  const createdAt = new Date(entreprise.createdAt);
+  const expireAt = new Date(createdAt);
+
+  expireAt.setDate(
+    expireAt.getDate() + (entreprise.duration || 7)
+  );
+
+  return new Date() > expireAt;
+}
 
 module.exports = router;
