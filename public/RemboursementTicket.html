@@ -171,7 +171,11 @@ function filtrerRemboursements() {
     const dateDebut = document.getElementById("dateDebut").value;
     const dateFin = document.getElementById("dateFin").value;
 
-    // Recharger les ventes et les remboursements
+    if (!dateDebut || !dateFin) {
+        alert("⚠️ Choisis une date début et une date fin");
+        return;
+    }
+
     loadVentes(dateDebut, dateFin);
     loadRemboursements(dateDebut, dateFin);
 }
@@ -325,8 +329,22 @@ function renderRefunds(refunds) {
 // =========================
 // 🚀 INIT
 // =========================
-loadVentes();
-loadRemboursements();
+// =========================
+// 🚀 INIT (ÉTAT VIDE AU DÉMARRAGE)
+// =========================
+function initEmptyState() {
+    document.getElementById("ticketList").innerHTML =
+        `<div class="p-3 text-muted text-center">
+            Sélectionnez une période puis cliquez sur "Afficher"
+        </div>`;
+
+    document.getElementById("refundList").innerHTML =
+        `<div class="p-3 text-muted text-center">
+            Sélectionnez une période puis cliquez sur "Afficher"
+        </div>`;
+}
+
+initEmptyState();
 </script>
 
 </body>
