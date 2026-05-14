@@ -114,7 +114,14 @@ async function loadVentes(dateDebut = "", dateFin = "") {
         );
 
         const data = await res.json();
-        renderVentes(data);
+
+if (!Array.isArray(data)) {
+    console.log("Réponse API ventes :", data);
+    alert(data.message || data.error || "Réponse invalide du serveur");
+    return;
+}
+
+renderVentes(data);
 
     } catch (err) {
         alert("VENTES: " + err.message);
@@ -153,7 +160,14 @@ async function loadRemboursements(dateDebut = "", dateFin = "") {
         );
 
         const data = await res.json();
-        renderRefunds(data);
+
+if (!Array.isArray(data)) {
+    console.log("Réponse API remboursements :", data);
+    alert(data.message || data.error || "Réponse invalide du serveur");
+    return;
+}
+
+renderRefunds(data);
 
     } catch (err) {
     alert("REMBOURSEMENTS: " + err.message);
