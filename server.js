@@ -137,6 +137,7 @@ app.use("/taux", isLoggedIn, require("./routes/Taux Devise"));
 app.use("/tva", isLoggedIn, require("./routes/Taux TVA"));
 app.use("/api/ticket", isLoggedIn, require("./routes/Ticket"));
 app.use("/api", isLoggedIn, require("./routes/RapportVente"));
+app.use("/api/remboursement", isLoggedIn, require("./routes/RemboursementTicket"));
 
 // ======================
 // TEST PROTECTED ROUTE

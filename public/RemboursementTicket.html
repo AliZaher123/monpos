@@ -16,23 +16,27 @@
 
     <div class="row g-3">
 
-        <!-- Tickets vendus -->
+        <!-- VENTES -->
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header bg-primary text-white">
                     Tickets vendus
                 </div>
-                <div class="card-body p-0" id="ticketList"></div>
+                <div class="card-body p-0" id="ticketList">
+                    <div class="p-3 text-center text-muted">Chargement...</div>
+                </div>
             </div>
         </div>
 
-        <!-- Tickets remboursés -->
+        <!-- REMBOURSEMENTS -->
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header bg-danger text-white">
                     Tickets remboursés
                 </div>
-                <div class="card-body p-0" id="refundList"></div>
+                <div class="card-body p-0" id="refundList">
+                    <div class="p-3 text-center text-muted">Chargement...</div>
+                </div>
             </div>
         </div>
 
@@ -40,28 +44,64 @@
 </div>
 
 <script>
-// 📦 données test (remplace par MongoDB plus tard)
-let tickets = [
-    { id: 1, produit: "Pain", prix: 500 },
-    { id: 2, produit: "Lait", prix: 1200 },
-    { id: 3, produit: "Sucre", prix: 800 }
-];
+// =========================
+// 🔥 CONFIG API (Render)
+// =========================
+const API_VENTES = "/ventes";
+const API_REMBOURSEMENT = "/api/remboursement";
 
-let refunded = [];
+// =========================
+// 📦 LOAD VENTES
+// =========================
+async function loadVentes() {
+    try {
+        const res = await fetch(API_VENTES);
+        const data = await res.json();
 
-// 🔁 afficher tickets vendus
-function renderTickets() {
+        renderVentes(data);
+
+    } catch (err) {
+        console.log("❌ erreur ventes:", err);
+    }
+}
+
+// =========================
+// 📦 LOAD REMBOURSEMENTS
+// =========================
+async function loadRemboursements() {
+    try {
+        const res = await fetch(API_REMBOURSEMENT);
+        const data = await res.json();
+
+        renderRefunds(data);
+
+    } catch (err) {
+        console.log("❌ erreur remboursements:", err);
+    }
+}
+
+// =========================
+// 🧾 AFFICHER VENTES
+// =========================
+function renderVentes(ventes) {
     const container = document.getElementById("ticketList");
     container.innerHTML = "";
 
-    tickets.forEach(t => {
+    if (!ventes.length) {
+        container.innerHTML = `<div class="p-3 text-muted text-center">Aucune vente</div>`;
+        return;
+    }
+
+    ventes.forEach(v => {
         container.innerHTML += `
         <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
             <div>
-                <strong>${t.produit}</strong><br>
-                <small class="text-muted">${t.prix} FC</small>
+                <strong>Ticket</strong><br>
+                <small class="text-muted">${v.totalGeneral} FC</small>
             </div>
-            <button class="btn btn-sm btn-danger" onclick="refund(${t.id})">
+
+            <button class="btn btn-sm btn-danger"
+                onclick="refundTicket('${v._id}')">
                 Rembourser
             </button>
         </div>
@@ -69,40 +109,67 @@ function renderTickets() {
     });
 }
 
-// 🔁 afficher tickets remboursés
-function renderRefunds() {
+// =========================
+// 💸 REMBOURSER
+// =========================
+async function refundTicket(id) {
+    try {
+
+        const res = await fetch(`${API_REMBOURSEMENT}/${id}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+            alert(data.message || "Erreur remboursement");
+            return;
+        }
+
+        alert("✅ Remboursement effectué");
+
+        loadVentes();
+        loadRemboursements();
+
+    } catch (err) {
+        console.log("❌ erreur refund:", err);
+    }
+}
+
+// =========================
+// 📉 AFFICHER REMBOURSEMENTS
+// =========================
+function renderRefunds(refunds) {
     const container = document.getElementById("refundList");
     container.innerHTML = "";
 
-    refunded.forEach(t => {
+    if (!refunds.length) {
+        container.innerHTML = `<div class="p-3 text-muted text-center">Aucun remboursement</div>`;
+        return;
+    }
+
+    refunds.forEach(r => {
         container.innerHTML += `
         <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
             <div>
-                <strong>${t.produit}</strong><br>
-                <small class="text-muted">${t.prix} FC</small>
+                <strong>Ticket</strong><br>
+                <small class="text-muted">${r.totalGeneral} FC</small>
             </div>
+
             <span class="badge bg-danger">Remboursé</span>
         </div>
         `;
     });
 }
 
-// 💸 action remboursement
-function refund(id) {
-    const index = tickets.findIndex(t => t.id === id);
-
-    if (index !== -1) {
-        const ticket = tickets.splice(index, 1)[0];
-        refunded.push(ticket);
-
-        renderTickets();
-        renderRefunds();
-    }
-}
-
-// 🚀 init
-renderTickets();
-renderRefunds();
+// =========================
+// 🚀 INIT
+// =========================
+loadVentes();
+loadRemboursements();
 </script>
 
 </body>
