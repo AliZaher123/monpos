@@ -41,14 +41,36 @@
 
 <body class="bg-light">
 
-<!-- NAVBAR (NE S'IMPRIME PAS) -->
-<nav class="navbar navbar-dark bg-dark px-3 no-print">
-  <span class="navbar-brand fw-bold">📊 RAPPORT POS</span>
-  <div>
-      <a class="nav-link text-white" href="RemboursementTicket.html">Remboursement Ticket</a>
-</div>
+<!-- NAVBAR RESPONSIVE MOBILE -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm no-print">
+  <div class="container-fluid">
 
-  <a class="btn btn-light" href="Index.html">Retour</a>
+    <!-- Titre -->
+    <a class="navbar-brand fw-bold" href="#">
+      📊 RAPPORT POS
+    </a>
+
+    <!-- Hamburger -->
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarPOS">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- Menu -->
+    <div class="collapse navbar-collapse" id="navbarPOS">
+      <div class="ms-auto d-flex flex-column flex-lg-row gap-2 mt-3 mt-lg-0">
+
+        <a class="btn btn-outline-light btn-sm" href="RemboursementTicket.html">
+          💳 Remboursement Ticket
+        </a>
+
+        <a class="btn btn-light btn-sm" href="Index.html">
+          ← Retour
+        </a>
+
+      </div>
+    </div>
+
+  </div>
 </nav>
 
 <div class="container py-3">
