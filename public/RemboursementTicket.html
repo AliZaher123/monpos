@@ -109,17 +109,45 @@ function renderVentes(ventes) {
     }
 
     ventes.forEach(v => {
+
+        let produitsHTML = "";
+
+        v.produits.forEach(p => {
+            produitsHTML += `
+                <li class="small">
+                    ${p.nom} - ${p.quantite} x ${p.prix} FC = ${p.total} FC
+                </li>
+            `;
+        });
+
         container.innerHTML += `
-        <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
-            <div>
+        <div class="border-bottom p-3">
+
+            <div class="mb-2">
                 <strong>Ticket</strong><br>
-                <small class="text-muted">${v.totalGeneral} FC</small>
+
+                <small class="text-muted">
+                    Date: ${new Date(v.date).toLocaleString()}
+                </small><br>
+
+                <small class="text-muted">
+                    Paiement: ${v.paiement || "cash"}
+                </small>
             </div>
 
-            <button class="btn btn-sm btn-danger"
-                onclick="refundTicket('${v._id}')">
-                Rembourser
-            </button>
+            <ul class="mb-2">
+                ${produitsHTML}
+            </ul>
+
+            <div class="d-flex justify-content-between align-items-center">
+                <strong>Total: ${v.totalGeneral} FC</strong>
+
+                <button class="btn btn-sm btn-danger"
+                    onclick="refundTicket('${v._id}')">
+                    Rembourser
+                </button>
+            </div>
+
         </div>
         `;
     });
