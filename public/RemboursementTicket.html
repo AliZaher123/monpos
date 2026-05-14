@@ -86,14 +86,32 @@ const API_REMBOURSEMENT = `${API}/api/remboursement`;
 // =========================
 // 🔁 LOAD VENTES
 // =========================
-async function loadVentes() {
+// =========================
+// 📦 LOAD VENTES
+// =========================
+async function loadVentes(dateDebut = "", dateFin = "") {
     try {
 
         const idEntreprise = localStorage.getItem("idEntreprise");
 
-        const res = await fetch(`${API_VENTES}?idEntreprise=${idEntreprise}`, {
-            credentials: "include"
+        const params = new URLSearchParams({
+            idEntreprise
         });
+
+        if (dateDebut) {
+            params.append("dateDebut", dateDebut);
+        }
+
+        if (dateFin) {
+            params.append("dateFin", dateFin);
+        }
+
+        const res = await fetch(
+            `${API_VENTES}?${params.toString()}`,
+            {
+                credentials: "include"
+            }
+        );
 
         const data = await res.json();
         renderVentes(data);
@@ -146,10 +164,15 @@ async function loadRemboursements(dateDebut = "", dateFin = "") {
 // =========================
 // 🔍 FILTRER REMBOURSEMENTS
 // =========================
+// =========================
+// 🔍 FILTRER VENTES ET REMBOURSEMENTS
+// =========================
 function filtrerRemboursements() {
     const dateDebut = document.getElementById("dateDebut").value;
     const dateFin = document.getElementById("dateFin").value;
 
+    // Recharger les ventes et les remboursements
+    loadVentes(dateDebut, dateFin);
     loadRemboursements(dateDebut, dateFin);
 }
 
