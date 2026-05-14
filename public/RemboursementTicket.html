@@ -12,21 +12,25 @@
 </head>
 
 <body class="bg-light">
+    
 <!-- NAVBAR RESPONSIVE MOBILE -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm no-print">
   <div class="container-fluid">
 
-    <!-- Titre -->
     <a class="navbar-brand fw-bold" href="#">
       💳 Remboursement Tickets
     </a>
 
-    <!-- Bouton hamburger (visible sur mobile) -->
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarPOS">
+    <button class="navbar-toggler" type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbarPOS"
+      aria-controls="navbarPOS"
+      aria-expanded="false"
+      aria-label="Toggle navigation">
+
       <span class="navbar-toggler-icon"></span>
     </button>
 
-    <!-- Menu responsive -->
     <div class="collapse navbar-collapse" id="navbarPOS">
       <div class="ms-auto mt-3 mt-lg-0 d-flex flex-column flex-lg-row gap-2">
 
@@ -396,6 +400,5 @@ function initEmptyState() {
 initEmptyState();
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
 </body>
 </html>
