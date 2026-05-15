@@ -19,12 +19,19 @@ const ADMIN = {
 // =======================
 router.post("/", async (req, res) => {
   try {
+
     const { entrepriseId, user, password } = req.body;
 
-    // Vérification entrepriseId et user
+    console.log("BODY RECU:", req.body);
+
+    const entrepriseIdClean = entrepriseId?.trim();
+    const userClean = user?.trim();
+    const passwordClean = password?.trim();
+
+    // Vérification identifiants texte
     if (
-      entrepriseId !== ADMIN.entrepriseId ||
-      user !== ADMIN.user
+      entrepriseIdClean !== ADMIN.entrepriseId ||
+      userClean !== ADMIN.user
     ) {
       return res.status(401).json({
         msg: "Identifiants incorrects"
@@ -33,7 +40,7 @@ router.post("/", async (req, res) => {
 
     // Vérification mot de passe hashé
     const passwordOK = await bcrypt.compare(
-      password,
+      passwordClean,
       ADMIN.password
     );
 
@@ -43,9 +50,7 @@ router.post("/", async (req, res) => {
       });
     }
 
-    // =======================
-    // CREATION DE LA SESSION
-    // =======================
+    // SESSION
     req.session.admin = {
       entrepriseId: ADMIN.entrepriseId,
       user: ADMIN.user,
@@ -53,12 +58,10 @@ router.post("/", async (req, res) => {
       loginAt: new Date()
     };
 
-    // Sauvegarde explicite de la session
     req.session.save((err) => {
       if (err) {
-        console.error("Erreur session admin :", err);
         return res.status(500).json({
-          msg: "Erreur lors de la création de la session"
+          msg: "Erreur session"
         });
       }
 
@@ -69,8 +72,9 @@ router.post("/", async (req, res) => {
         role: "superadmin"
       });
     });
+
   } catch (error) {
-    console.error("Erreur login admin :", error);
+    console.error(error);
     return res.status(500).json({
       msg: "Erreur serveur"
     });
