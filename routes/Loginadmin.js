@@ -20,15 +20,20 @@ const ADMIN = {
 router.post("/", async (req, res) => {
   try {
 
-    const { entrepriseId, user, password } = req.body;
-
     console.log("BODY RECU:", req.body);
+
+    if (!req.body) {
+      return res.status(400).json({
+        msg: "Body vide"
+      });
+    }
+
+    const { entrepriseId, user, password } = req.body;
 
     const entrepriseIdClean = entrepriseId?.trim();
     const userClean = user?.trim();
     const passwordClean = password?.trim();
 
-    // Vérification identifiants texte
     if (
       entrepriseIdClean !== ADMIN.entrepriseId ||
       userClean !== ADMIN.user
@@ -38,7 +43,6 @@ router.post("/", async (req, res) => {
       });
     }
 
-    // Vérification mot de passe hashé
     const passwordOK = await bcrypt.compare(
       passwordClean,
       ADMIN.password
@@ -50,7 +54,6 @@ router.post("/", async (req, res) => {
       });
     }
 
-    // SESSION
     req.session.admin = {
       entrepriseId: ADMIN.entrepriseId,
       user: ADMIN.user,
