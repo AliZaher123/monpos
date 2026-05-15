@@ -34,14 +34,17 @@ router.post("/", async (req, res) => {
     const userClean = user?.trim();
     const passwordClean = password?.trim();
 
-    if (
-      entrepriseIdClean !== ADMIN.entrepriseId ||
-      userClean !== ADMIN.user
-    ) {
-      return res.status(401).json({
-        msg: "Identifiants incorrects"
-      });
-    }
+   console.log("CHECK START");
+
+if (
+  entrepriseId.trim() !== ADMIN.entrepriseId ||
+  user.trim() !== ADMIN.user
+) {
+  console.log("FAIL CHECK");
+  return res.status(401).json({ msg: "Identifiants incorrects" });
+}
+
+console.log("CHECK PASSED");
 
     const passwordOK = await bcrypt.compare(
       passwordClean,
