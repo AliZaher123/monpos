@@ -96,7 +96,17 @@ app.get("/check-session", (req, res) => {
 
 
 
+app.get("/me", (req, res) => {
 
+  console.log("ME sessionID:", req.sessionID);
+
+  res.json({
+    sessionID: req.sessionID,
+    user: req.session.user || null,
+    admin: req.session.admin || null,
+    cookies: req.headers.cookie
+  });
+});
 
 
 
@@ -106,7 +116,7 @@ app.get("/check-session", (req, res) => {
 // ======================
 // ME ROUTE (DEBUG)
 // ======================
-app.get("/me", (req, res) => {
+app.get("/mes", (req, res) => {
 
   console.log("ME sessionID:", req.sessionID);
   console.log("ME user:", req.session.user);
