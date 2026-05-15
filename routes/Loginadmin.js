@@ -8,7 +8,7 @@ const bcrypt = require("bcrypt");
 const ADMIN = {
   entrepriseId: "admin001",
   user: "admin",
-  password: "$2b$10$g8l3eN3m3H9v0L7oK1wM7eYqWQ0sM8mA5Qm7o8gL0rWqjX5mQxV3K"
+  password: "$2b$10$WsEzYOHmjGWtonRle6Hc7.qZo4noK8.r72uMdbz80X1iEDSaTKXZS"
 };
 
 // =======================
