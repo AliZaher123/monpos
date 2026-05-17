@@ -39,7 +39,7 @@
 
 </head>
 
-<body class="bg-light">
+<body class="bg-light id="app" style="display:none;">
 
 <!-- NAVBAR RESPONSIVE MOBILE -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm no-print">
@@ -144,6 +144,46 @@
 </div>
 
 <script>
+
+
+
+(async () => {
+  try {
+    const res = await fetch(`${API}/me`, {
+      credentials: "include"
+    });
+
+    const data = await res.json();
+
+    if (!data.user) {
+      window.location.replace("Login.html");
+      return;
+    }
+
+    // ✔ autorisé → afficher page
+    document.getElementById("app").style.display = "block";
+
+  } catch (err) {
+    window.location.replace("Login.html");
+  }
+})();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // ============================
 // ENTREPRISE + USER
