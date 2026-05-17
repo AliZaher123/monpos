@@ -164,7 +164,12 @@ async function loadCompanies() {
   try {
     console.log("🚀 LOAD START");
 
-    const res = await fetch(`${API}/entreprises`);
+    
+
+    const res = await fetch(`${API}/entreprises`, {
+  credentials: "include"
+});
+
     console.log("📡 STATUS:", res.status);
 
     const data = await res.json();
