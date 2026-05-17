@@ -11,7 +11,7 @@
 <script src="globalconfig.js"></script>
 </head>
 
-<body class="bg-light">
+<body class="bg-light id="app" style="display:none;">
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark px-3">
   <a class="navbar-brand fw-bold" href="#">📦 GESTION STOCK</a>
@@ -109,6 +109,38 @@
 </div>
 
 <script>
+
+(async () => {
+  try {
+    const res = await fetch(`${API}/me`, {
+      credentials: "include"
+    });
+
+    const data = await res.json();
+
+    if (!data.user) {
+      window.location.replace("Login.html");
+      return;
+    }
+
+    // ✔ autorisé → afficher page
+    document.getElementById("app").style.display = "block";
+
+  } catch (err) {
+    window.location.replace("Login.html");
+  }
+})();
+
+
+
+
+
+
+
+
+
+
+
 
 let stock = [];
 let categories = [];
