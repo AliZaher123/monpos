@@ -12,9 +12,19 @@
 
 <!-- GLOBAL CONFIG -->
 <script src="globalconfig.js"></script>
+
+
+<style>
+    body.loading {
+      display: none;
+    }
+  </style>
+
+
 </head>
 
-<body class="bg-light">
+<body class="bg-light loading">
+  <div id="app">
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark px-3">
   <a class="navbar-brand fw-bold" href="#">📂 GESTION CATÉGORIES</a>
@@ -71,6 +81,36 @@
 </div>
 
 <script>
+
+(async () => {
+  try {
+    const res = await fetch(`${API}/me`, {
+      credentials: "include"
+    });
+
+    const data = await res.json();
+
+    if (!data.user) {
+      window.location.replace("Login.html");
+      return;
+    }
+
+    // ✔ autorisé → afficher page
+    document.getElementById("app").style.display = "block";
+
+  } catch (err) {
+    window.location.replace("Login.html");
+  }
+})();
+
+
+
+
+
+
+
+
+
 
 // 🔐 Vérifier idEntreprise au chargement
 function verifierEntreprise() {
