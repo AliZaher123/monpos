@@ -135,7 +135,7 @@ app.use("/login", require("./routes/Login"));
 app.use("/logout", require("./routes/Logout"));
 
 app.use("/login-admin", require("./routes/Loginadmin"));
-app.use("/admin/entreprises", verifyAdmin, require("./routes/Entreprise"));
+app.use("/admin/entreprises", require("./routes/Entreprise"));
 app.use("/api/ticket", verifyAdmin, require("./routes/Ticket"));
 
 

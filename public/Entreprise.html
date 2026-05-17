@@ -160,25 +160,15 @@ window.addEventListener("DOMContentLoaded", () => {
 
 
 // ================= LOAD
-// ================= LOAD
 async function loadCompanies() {
   try {
     console.log("🚀 LOAD START");
 
-    const res = await fetch(`${API}/entreprises`, {
-      credentials: "include"
-    });
-
+    const res = await fetch(`${API}/entreprises`);
     console.log("📡 STATUS:", res.status);
 
     const data = await res.json();
     console.log("📦 DATA:", data);
-
-    // Vérifie si le serveur a renvoyé une erreur (401, 403, etc.)
-    if (!res.ok) {
-      alert(data.msg || "Accès refusé");
-      return;
-    }
 
     companies = data;
 
@@ -198,114 +188,156 @@ async function loadCompanies() {
 // ================= CREATE COMPANY
 async function createCompany() {
 
-  const name = document.getElementById("companyName").value.trim();
-  const plan = document.getElementById("companyPlan").value;
-  const note = document.getElementById("companyNote").value || "";
+const name = document.getElementById("companyName").value.trim();
+const plan = document.getElementById("companyPlan").value;
+const note = document.getElementById("companyNote").value || "";
 
-  if (!name) return alert("Nom requis");
+if (!name) return alert("Nom requis");
 
-  let duration = plan === "basic" ? 30 : plan === "pro" ? 365 : 7;
+let duration = plan === "basic" ? 30 : plan === "pro" ? 365 : 7;
 
-  await fetch(`${API}/entreprises`, {
-    method: "POST",
-    credentials: "include",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      _id: generateId(name),
-      name,
-      plan,
-      duration,
-      note
-    })
-  });
+await fetch(`${API}/entreprises`, {
+method: "POST",
+headers: {"Content-Type":"application/json"},
+body: JSON.stringify({
+_id: generateId(name),
+name, plan, duration, note
+})
+});
 
-  loadCompanies();
+loadCompanies();
 }
 
 // ================= ADD USER
 async function addUser() {
 
-  const companyId = document.getElementById("companySelect").value;
-  const user = document.getElementById("userName").value.trim();
-  const password = document.getElementById("password").value.trim();
-  const role = document.getElementById("role").value;
+const companyId = document.getElementById("companySelect").value;
+const user = document.getElementById("userName").value.trim();
+const password = document.getElementById("password").value.trim();
+const role = document.getElementById("role").value;
 
-  await fetch(`${API}/entreprises/${companyId}/user`, {
-    method: "POST",
-    credentials: "include",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ user, password, role })
-  });
+await fetch(`${API}/entreprises/${companyId}/user`, {
+method: "POST",
+headers: {"Content-Type":"application/json"},
+body: JSON.stringify({ user, password, role })
+});
 
-  loadCompanies();
+loadCompanies();
 }
 
 // ================= DELETE
-async function deleteCompany(id) {
-  await fetch(`${API}/entreprises/${id}`, {
-    method: "DELETE",
-    credentials: "include"
-  });
-
-  loadCompanies();
+async function deleteCompany(id){
+await fetch(`${API}/entreprises/${id}`, {method:"DELETE"});
+loadCompanies();
 }
 
-async function deleteUser(id, user) {
-  await fetch(`${API}/entreprises/${id}/user/${user}`, {
-    method: "DELETE",
-    credentials: "include"
-  });
+async function deleteUser(id,user){
+await fetch(`${API}/entreprises/${id}/user/${user}`, {method:"DELETE"});
+loadCompanies();
+}
 
-  loadCompanies();
+// ================= EDIT COMPANY
+function editCompany(id){
+  const c = companies.find(x => x._id === id);
+
+  editType = "company";
+  editId = id;
+
+  // Nom
+  document.getElementById("editName").value = c.name || "";
+
+  // Afficher Plan
+  const plan = document.getElementById("editPlan");
+  plan.classList.remove("d-none");
+  plan.value = c.plan || "free";
+
+  // Afficher Note
+  const note = document.getElementById("editNote");
+  note.classList.remove("d-none");
+  note.value = c.note || "";
+
+  // Cacher les champs utilisateur
+  document.getElementById("editRole").classList.add("d-none");
+  document.getElementById("editPassword").classList.add("d-none");
+  document.getElementById("editPassword").value = "";
+
+  modal.show();
+}
+
+// ================= EDIT USER
+function editUser(id, user, role) {
+
+  editType = "user";
+  editId = id;
+  editUsername = user;
+
+  // Nom utilisateur
+  document.getElementById("editName").value = user;
+
+  // Cacher les champs entreprise
+  document.getElementById("editPlan").classList.add("d-none");
+  document.getElementById("editNote").classList.add("d-none");
+
+  // Afficher rôle
+  const r = document.getElementById("editRole");
+  r.classList.remove("d-none");
+  r.value = role;
+
+  // Afficher mot de passe
+  const p = document.getElementById("editPassword");
+  p.classList.remove("d-none");
+  p.value = "";
+
+  modal.show();
 }
 
 // ================= SAVE EDIT
 document.getElementById("saveBtn").addEventListener("click", async () => {
 
-  const value = document.getElementById("editName").value;
+const value = document.getElementById("editName").value;
 
-  if (editType === "company") {
+if (editType === "company") {
 
-    const plan = document.getElementById("editPlan").value;
-    const note = document.getElementById("editNote").value;
+  const plan = document.getElementById("editPlan").value;
+  const note = document.getElementById("editNote").value;
 
-    let duration =
-      plan === "basic" ? 30 :
-      plan === "pro" ? 365 :
-      7;
+  let duration =
+    plan === "basic" ? 30 :
+    plan === "pro" ? 365 :
+    7;
 
-    await fetch(`${API}/entreprises/${editId}`, {
-      method: "PUT",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: value,
-        plan: plan,
-        duration: duration,
-        note: note
-      })
-    });
-  }
+  await fetch(`${API}/entreprises/${editId}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      name: value,
+      plan: plan,
+      duration: duration,
+      note: note
+    })
+  });
 
-  if (editType === "user") {
+}
 
-    const role = document.getElementById("editRole").value;
-    const password = document.getElementById("editPassword").value.trim();
+if (editType === "user") {
 
-    await fetch(`${API}/entreprises/${editId}/user/${editUsername}`, {
-      method: "PUT",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        user: value,
-        role: role,
-        password: password
-      })
-    });
-  }
+  const role = document.getElementById("editRole").value;
+  const password = document.getElementById("editPassword").value.trim();
 
-  modal.hide();
-  loadCompanies();
+  await fetch(`${API}/entreprises/${editId}/user/${editUsername}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      user: value,
+      role: role,
+      password: password
+    })
+  });
+
+}
+
+modal.hide();
+loadCompanies();
 });
 
 // ================= RENDER
