@@ -112,32 +112,31 @@
 
 
 
-  if (!API) {
-    console.log("API manquante");
-    window.location.href = "Login.html";
-    return;
-  }
-
+if (typeof API === "undefined" || !API) {
+  console.log("API manquante");
+  window.location.href = "Login.html";
+} else {
   (async () => {
-  try {
-    const res = await fetch(`${API}/me`, {
-      credentials: "include"
-    });
+    try {
+      const res = await fetch(`${API}/me`, {
+        credentials: "include"
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    if (!data.user) {
+      if (!data.user) {
+        window.location.replace("Login.html");
+        return;
+      }
+
+      // Utilisateur connecté → afficher la page
+      document.getElementById("app").style.display = "block";
+
+    } catch (err) {
       window.location.replace("Login.html");
-      return;
     }
-
-    // ✔ autorisé → afficher page
-    document.getElementById("app").style.display = "block";
-
-  } catch (err) {
-    window.location.replace("Login.html");
-  }
-})();
+  })();
+}
 
 
 
