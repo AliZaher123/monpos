@@ -78,28 +78,42 @@
 
 <script>
 
-  console.log("API =", API);
+const API = API; // vient de globalconfig.js
 
+console.log("MENU OK");
+
+// =========================
+// CHECK SESSION
+// =========================
 (async () => {
   try {
+
     const res = await fetch(`${API}/me`, {
       credentials: "include"
     });
 
     const data = await res.json();
-      // 👇 AJOUT ICI
-    console.log("ME response =", data);
 
-    if (!data.user) {
+    console.log("ME RESPONSE =", data);
+
+    // 🔥 sécurité robuste
+    if (!data || !data.user || !data.user.name) {
       window.location.replace("Login.html");
       return;
     }
 
+    // afficher page
     document.getElementById("app").style.display = "block";
 
+    // afficher user
+    document.getElementById("userText").innerText =
+      `👤 ${data.user.name} (${data.user.role})`;
+
   } catch (err) {
+    console.log("ERROR /me:", err);
     window.location.replace("Login.html");
   }
+
 })();
 
 
