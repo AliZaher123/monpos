@@ -137,7 +137,6 @@ app.use("/logout", require("./routes/Logout"));
 app.use("/login-admin", require("./routes/Loginadmin"));
 app.use("/api", require("./routes/Logoutadmin")); // 👈 AJOUT
 app.use("/entreprises", verifyAdmin, require("./routes/Entreprise"));
-app.use("/api/ticket", require("./routes/Ticket"));
 
 
 // ======================
@@ -150,6 +149,8 @@ app.use("/users", isLoggedIn, require("./routes/users"));
 app.use("/taux", isLoggedIn, require("./routes/Taux Devise"));
 app.use("/tva", isLoggedIn, require("./routes/Taux TVA"));
 app.use("/api", isLoggedIn, require("./routes/RapportVente"));
+app.use("/api/ticket", isLoggedIn, require("./routes/Ticket"));
+
 app.use("/api/remboursement", isLoggedIn, require("./routes/RemboursementTicket"));
 
 // ======================
