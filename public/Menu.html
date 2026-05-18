@@ -78,25 +78,34 @@
 
 <script>
 
+const API = window.API;
+
 (async () => {
   try {
+
     const res = await fetch(`${API}/me`, {
       credentials: "include"
     });
 
     const data = await res.json();
 
-    if (!data.user) {
+    console.log("ME RESPONSE =", data);
+
+    if (!data?.user?.name) {
       window.location.replace("Login.html");
       return;
     }
 
-    // ✔ autorisé → afficher page
     document.getElementById("app").style.display = "block";
 
+    document.getElementById("userText").innerText =
+      `👤 ${data.user.name} (${data.user.role})`;
+
   } catch (err) {
+    console.log("ERROR /me:", err);
     window.location.replace("Login.html");
   }
+
 })();
 
 
