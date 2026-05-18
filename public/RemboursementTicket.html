@@ -113,26 +113,42 @@
 
 <script>
 
-(async () => {
-  try {
-    const res = await fetch(`${API}/me`, {
-      credentials: "include"
-    });
+// ============================
+// PROTECTION DE LA PAGE
+// ============================
+if (typeof API === "undefined" || !API) {
+  window.location.replace("Login.html");
+} else {
+  (async () => {
+    try {
+      const res = await fetch(`${API}/me`, {
+        credentials: "include",
+        cache: "no-store"
+      });
 
-    const data = await res.json();
+      // Session invalide ou expirée
+      if (!res.ok) {
+        window.location.replace("Login.html");
+        return;
+      }
 
-    if (!data.user) {
+      const data = await res.json();
+
+      // Aucun utilisateur connecté
+      if (!data.user) {
+        window.location.replace("Login.html");
+        return;
+      }
+
+      // Autorisé → afficher la page
+      document.getElementById("app").style.display = "block";
+
+    } catch (err) {
+      // Erreur réseau ou API inaccessible
       window.location.replace("Login.html");
-      return;
     }
-
-    // ✔ autorisé → afficher page
-    document.getElementById("app").style.display = "block";
-
-  } catch (err) {
-    window.location.replace("Login.html");
-  }
-})();
+  })();
+}
 
 
 
