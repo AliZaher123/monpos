@@ -14,6 +14,16 @@
 
 <body class="bg-light" id="app" style="display:none;">
 
+<!-- 🔐 PROTECTION PAGE -->
+<script>
+if (!localStorage.getItem("user")) {
+  window.location.href = "Login.html";
+}
+</script>
+
+
+
+
 <!-- TOP BAR -->
 <nav class="navbar navbar-dark bg-dark px-3">
   <span class="navbar-brand fw-bold">🛒 HELPSTORE POS</span>
@@ -80,32 +90,6 @@
 </div>
 
 <script>
-
-(async () => {
-  try {
-    const res = await fetch(`${API}/me`, {
-      credentials: "include"
-    });
-
-    const data = await res.json();
-
-    if (!data.user) {
-      window.location.replace("Login.html");
-      return;
-    }
-
-    // ✔ autorisé → afficher page
-    document.getElementById("app").style.display = "block";
-
-  } catch (err) {
-    window.location.replace("Login.html");
-  }
-})();
-
-
-
-
-
 
 
 

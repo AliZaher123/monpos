@@ -110,9 +110,7 @@
 
 <script>
 
-const API = window.API;
 
-window.addEventListener("DOMContentLoaded", async () => {
 
   if (!API) {
     console.log("API manquante");
@@ -120,32 +118,27 @@ window.addEventListener("DOMContentLoaded", async () => {
     return;
   }
 
+  (async () => {
   try {
     const res = await fetch(`${API}/me`, {
       credentials: "include"
     });
 
     const data = await res.json();
-    console.log("ME =", data);
 
-    if (!data?.user?.name) {
-      window.location.href = "Login.html";
+    if (!data.user) {
+      window.location.replace("Login.html");
       return;
     }
 
+    // ✔ autorisé → afficher page
     document.getElementById("app").style.display = "block";
 
-    // 👉 CHARGER ICI seulement après login OK
-    loadCategories();
-    loadStock();
-    toggleStockFields();
-    chargerTva();
-
   } catch (err) {
-    console.log("ERROR AUTH:", err);
-    window.location.href = "Login.html";
+    window.location.replace("Login.html");
   }
-});
+})();
+
 
 
 
