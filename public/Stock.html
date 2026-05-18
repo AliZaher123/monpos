@@ -112,35 +112,40 @@
 
 const API = window.API;
 
-(async () => {
+window.addEventListener("DOMContentLoaded", async () => {
+
+  if (!API) {
+    console.log("API manquante");
+    window.location.href = "Login.html";
+    return;
+  }
+
   try {
-
-    if (!API) {
-      window.location.replace("Login.html");
-      return;
-    }
-
     const res = await fetch(`${API}/me`, {
       credentials: "include"
     });
 
     const data = await res.json();
+    console.log("ME =", data);
 
     if (!data?.user?.name) {
-      window.location.replace("Login.html");
+      window.location.href = "Login.html";
       return;
     }
 
-    // ✅ AFFICHER LA PAGE
-    const app = document.getElementById("app");
-    if (app) app.style.display = "block";
+    document.getElementById("app").style.display = "block";
+
+    // 👉 CHARGER ICI seulement après login OK
+    loadCategories();
+    loadStock();
+    toggleStockFields();
+    chargerTva();
 
   } catch (err) {
-    console.log("AUTH ERROR:", err);
-    window.location.replace("Login.html");
+    console.log("ERROR AUTH:", err);
+    window.location.href = "Login.html";
   }
-
-})();
+});
 
 
 
