@@ -270,26 +270,29 @@ let settings = {
 
 async function loadSettings() {
   try {
-    const res = await fetch(`${API}/api/ticket/${idEntreprise}`);
+    const url = `${API}/api/ticket/${idEntreprise}`;
+    console.log("Fetching settings:", url);
+
+    const res = await fetch(url);
 
     if (!res.ok) {
-      console.error("Settings API error:", res.status);
+      console.error("Settings HTTP error:", res.status);
       return;
     }
 
     const data = await res.json();
 
-    console.log("SETTINGS FROM SERVER:", data);
+    console.log("SETTINGS BACKEND:", data);
 
     settings = {
-      headerText: data?.headerText ?? "",
-      footerText: data?.footerText ?? "",
-      logo: data?.logo ?? "",
-      enableTVA: data?.enableTVA ?? false
+      headerText: data.headerText || "",
+      footerText: data.footerText || "",
+      logo: data.logo || "",
+      enableTVA: data.enableTVA || false
     };
 
   } catch (err) {
-    console.error("Erreur settings:", err);
+    console.error("loadSettings error:", err);
   }
 }
 
