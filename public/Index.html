@@ -270,16 +270,23 @@ let settings = {
 
 async function loadSettings() {
   try {
-    let res = await fetch(`${API}/api/ticket/${idEntreprise}`);
-    let data = await res.json();
+    const res = await fetch(`${API}/api/ticket/${idEntreprise}`);
+
+    if (!res.ok) {
+      console.error("Settings API error:", res.status);
+      return;
+    }
+
+    const data = await res.json();
+
+    console.log("SETTINGS FROM SERVER:", data);
 
     settings = {
-  headerText: data.headerText || "",
-  footerText: data.footerText || "",
-  logo: data.logo || "",
-  enableTVA: data.enableTVA || false
-};
-    console.log("ID ENTREPRISE:", idEntreprise);
+      headerText: data?.headerText ?? "",
+      footerText: data?.footerText ?? "",
+      logo: data?.logo ?? "",
+      enableTVA: data?.enableTVA ?? false
+    };
 
   } catch (err) {
     console.error("Erreur settings:", err);
