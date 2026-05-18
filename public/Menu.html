@@ -78,59 +78,39 @@
 
 <script>
 
-const API = window.API; // vient de globalconfig.js
-
-console.log("MENU SCRIPT CHARGE");
-
 (async () => {
   try {
-
     const res = await fetch(`${API}/me`, {
       credentials: "include"
     });
 
     const data = await res.json();
 
-    console.log("ME RESPONSE =", data);
-
-    if (!data?.user?.name) {
+    if (!data.user) {
       window.location.replace("Login.html");
       return;
     }
 
-    // afficher page
+    // ✔ autorisé → afficher page
     document.getElementById("app").style.display = "block";
 
-    // afficher user
-    document.getElementById("userText").innerText =
-      `👤 ${data.user.name} (${data.user.role})`;
-
   } catch (err) {
-    console.log("ERROR /me:", err);
     window.location.replace("Login.html");
   }
-
 })();
+
+
+
+
+
+
+
 
 function go(page) {
   window.location.href = page;
 }
 
-async function logout() {
-  try {
-    await fetch(`${API}/logout`, {
-      method: "POST",
-      credentials: "include"
-    });
 
-    localStorage.clear();
-    window.location.href = "Login.html";
-
-  } catch (err) {
-    localStorage.clear();
-    window.location.href = "Login.html";
-  }
-}
 
 
 
