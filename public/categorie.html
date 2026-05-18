@@ -110,8 +110,7 @@ if (typeof API === "undefined" || !API) {
       }
 
       // Autorisé → afficher la page
-      document.getElementById("app").style.display = "block";
-
+document.body.classList.remove("loading");
     } catch (err) {
       // Erreur réseau ou API inaccessible
       window.location.replace("Login.html");
