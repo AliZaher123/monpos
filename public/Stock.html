@@ -112,27 +112,36 @@
 
 
 
+// Vérification AVANT que la page ne s'affiche
 if (typeof API === "undefined" || !API) {
-  console.log("API manquante");
-  window.location.href = "Login.html";
+  window.location.replace("Login.html");
 } else {
   (async () => {
     try {
       const res = await fetch(`${API}/me`, {
-        credentials: "include"
+        credentials: "include",
+        cache: "no-store" // évite l'utilisation du cache du navigateur
       });
+
+      // Si la session n'est pas valide
+      if (!res.ok) {
+        window.location.replace("Login.html");
+        return;
+      }
 
       const data = await res.json();
 
+      // Aucun utilisateur connecté
       if (!data.user) {
         window.location.replace("Login.html");
         return;
       }
 
-      // Utilisateur connecté → afficher la page
+      // Autorisé → afficher la page
       document.getElementById("app").style.display = "block";
 
     } catch (err) {
+      // En cas d'erreur réseau ou autre
       window.location.replace("Login.html");
     }
   })();
