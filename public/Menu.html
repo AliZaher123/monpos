@@ -78,13 +78,10 @@
 
 <script>
 
-const API = API; // vient de globalconfig.js
+const API = window.API; // vient de globalconfig.js
 
-console.log("MENU OK");
+console.log("MENU SCRIPT CHARGE");
 
-// =========================
-// CHECK SESSION
-// =========================
 (async () => {
   try {
 
@@ -96,8 +93,7 @@ console.log("MENU OK");
 
     console.log("ME RESPONSE =", data);
 
-    // 🔥 sécurité robuste
-    if (!data || !data.user || !data.user.name) {
+    if (!data?.user?.name) {
       window.location.replace("Login.html");
       return;
     }
@@ -115,6 +111,26 @@ console.log("MENU OK");
   }
 
 })();
+
+function go(page) {
+  window.location.href = page;
+}
+
+async function logout() {
+  try {
+    await fetch(`${API}/logout`, {
+      method: "POST",
+      credentials: "include"
+    });
+
+    localStorage.clear();
+    window.location.href = "Login.html";
+
+  } catch (err) {
+    localStorage.clear();
+    window.location.href = "Login.html";
+  }
+}
 
 
 
