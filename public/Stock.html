@@ -112,19 +112,22 @@
 
 (async () => {
   try {
+
+    if (typeof API === "undefined") {
+      window.location.replace("Login.html");
+      return;
+    }
+
     const res = await fetch(`${API}/me`, {
       credentials: "include"
     });
 
     const data = await res.json();
 
-    if (!data.user) {
+    if (!data?.user) {
       window.location.replace("Login.html");
       return;
     }
-
-    // ✔ autorisé → afficher page
-    document.getElementById("app").style.display = "block";
 
   } catch (err) {
     window.location.replace("Login.html");
