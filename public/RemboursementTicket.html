@@ -347,6 +347,19 @@ function renderVentes(ventes) {
 // 💸 REMBOURSEMENT
 // =========================
 async function refundTicket(id) {
+
+
+ // Demande de confirmation
+    const confirmation = confirm(
+        "Voulez-vous vraiment rembourser ce ticket ?"
+    );
+
+    // Si l'utilisateur clique sur Annuler
+    if (!confirmation) {
+        return;
+    }
+
+
     try {
 
         const res = await fetch(`${API_REMBOURSEMENT}/${id}`, {
