@@ -11,7 +11,7 @@
 
 </head>
 
-<body class="bg-light">
+<body class="bg-light" id="app" style="display:none;">
 <!-- TOP BAR -->
 <nav class="navbar navbar-dark bg-dark px-3">
   <span class="navbar-brand fw-bold">🛒 HELPSTORE POS</span>
@@ -61,7 +61,52 @@
 
 <script>
 
+// ============================
+// PROTECTION PAGE ADMIN
+// ============================
 
+if (typeof API === "undefined" || !API) {
+
+  window.location.replace("Login admin.html");
+
+} else {
+
+  (async () => {
+
+    try {
+
+      const res = await fetch(`${API}/me`, {
+        credentials: "include",
+        cache: "no-store"
+      });
+
+      // session invalide
+      if (!res.ok) {
+        window.location.replace("Login admin.html");
+        return;
+      }
+
+      const data = await res.json();
+
+      // admin absent
+      if (!data.admin) {
+        window.location.replace("Login admin.html");
+        return;
+      }
+
+      // autorisé → afficher page
+      document.getElementById("app").style.display = "block";
+
+    } catch (err) {
+
+      // erreur réseau/API
+      window.location.replace("Login admin.html");
+
+    }
+
+  })();
+
+}
 
 
 
