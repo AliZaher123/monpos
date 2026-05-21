@@ -15,14 +15,24 @@
 
 <script>
 (function () {
+
   if (localStorage.getItem("adminLogged") !== "true") {
     window.location.replace("Login admin.html");
     return;
   }
 
-  document.addEventListener("DOMContentLoaded", () => {
+  window.addEventListener("load", () => {
+
     document.body.style.display = "block";
+
+    // 🔥 IMPORTANT: charger automatiquement les settings ici
+    if (idEntreprise) {
+      entrepriseInput.value = idEntreprise;
+      loadSettings();
+    }
+
   });
+
 })();
 </script>
 
