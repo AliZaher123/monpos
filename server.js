@@ -149,7 +149,7 @@ app.use("/users", isLoggedIn, require("./routes/users"));
 app.use("/taux", isLoggedIn, require("./routes/Taux Devise"));
 app.use("/tva", isLoggedIn, require("./routes/Taux TVA"));
 app.use("/api", isLoggedIn, require("./routes/RapportVente"));
-app.use("/api/ticket", isLoggedIn, require("./routes/Ticket"));
+app.use("/api/ticket", require("./routes/Ticket"));
 
 app.use("/api/remboursement", isLoggedIn, require("./routes/RemboursementTicket"));
 
