@@ -75,7 +75,7 @@ if (typeof API === "undefined" || !API) {
 
     try {
 
-      const res = await fetch(`${API}/api/me-admin`, {
+      const res = await fetch(`${API}/me`, {
         credentials: "include",
         cache: "no-store"
       });
