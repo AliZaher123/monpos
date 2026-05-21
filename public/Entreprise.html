@@ -148,40 +148,7 @@
 <script>
 
 
-if (typeof API === "undefined" || !API) {
-  window.location.replace("Login admin.html");
-} else {
 
-  (async () => {
-
-    try {
-
-      const res = await fetch(`${API}/me`, {
-        credentials: "include",
-        cache: "no-store"
-      });
-
-      if (!res.ok) {
-        window.location.replace("Login admin.html");
-        return;
-      }
-
-      const data = await res.json();
-
-      if (!data.admin) {
-        window.location.replace("Login admin.html");
-        return;
-      }
-
-      document.getElementById("app").style.display = "block";
-
-    } catch (err) {
-      window.location.replace("Login admin.html");
-    }
-
-  })();
-
-}
 
 
 
