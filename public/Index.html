@@ -657,10 +657,12 @@ ticket += `<hr>`;
 // PRODUITS
 cart.forEach(p => {
   ticket += `
-    <p style="display:flex; justify-content:space-between;">
-      <span>${p.name} (${p.qty}x)</span>
-      <span>${p.price.toFixed(2)} × ${p.qty} = ${(p.price * p.qty).toFixed(2)} USD</span>
-    </p>
+    <div style="font-size:14px; margin-bottom:6px;">
+      <b>${p.name}</b><br>
+      <span>${p.qty} x ${p.price.toFixed(2)}</span>
+      <span style="float:right;">${(p.price * p.qty).toFixed(2)} USD</span>
+      <div style="clear:both;"></div>
+    </div>
   `;
 });
 
