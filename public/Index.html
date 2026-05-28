@@ -656,7 +656,12 @@ ticket += `<p>Date: ${now}</p>`;
 ticket += `<hr>`;
 // PRODUITS
 cart.forEach(p => {
-  ticket += `<p>${p.name} x${p.qty} = ${(p.price * p.qty).toFixed(2)} USD</p>`;
+  ticket += `
+    <p style="display:flex; justify-content:space-between;">
+      <span>${p.name} (${p.qty}x)</span>
+      <span>${p.price.toFixed(2)} × ${p.qty} = ${(p.price * p.qty).toFixed(2)} USD</span>
+    </p>
+  `;
 });
 
 // TOTAL + TVA + PAIEMENT
