@@ -22,19 +22,7 @@
   }
 
   window.addEventListener("load", () => {
-
     document.body.style.display = "block";
-
-    // attendre DOM prêt
-    setTimeout(() => {
-
-      if (idEntreprise) {
-        entrepriseInput.value = idEntreprise;
-        loadSettings();
-      }
-
-    }, 50);
-
   });
 
 })();
@@ -117,32 +105,22 @@
 
 <script>
 
-let idEntreprise = localStorage.getItem("idEntreprise");
-
-// =======================
-// SET ENTREPRISE
-// =======================
 function setEntreprise() {
 
-  const id = entrepriseInput.value.trim();
+  const idEntreprise = entrepriseInput.value.trim();
 
-  if (!id) {
+  if (!idEntreprise) {
     alert("Entre un ID entreprise !");
     return;
   }
 
-  idEntreprise = id;
-  localStorage.setItem("idEntreprise", id);
-
-  loadSettings();
+  loadSettings(idEntreprise);
 }
 
 // =======================
 // LOAD SETTINGS
 // =======================
-async function loadSettings() {
-
-  if (!idEntreprise) return;
+async function loadSettings(idEntreprise) {
 
   try {
 
@@ -169,6 +147,8 @@ async function loadSettings() {
 // =======================
 async function saveSettings() {
 
+  const idEntreprise = entrepriseInput.value.trim();
+
   if (!idEntreprise) {
     alert("ID entreprise manquant !");
     return;
@@ -184,7 +164,9 @@ async function saveSettings() {
 
   await fetch(`${API}/api/ticket/save`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json"
+    },
     body: JSON.stringify(payload)
   });
 
@@ -195,6 +177,8 @@ async function saveSettings() {
 // DELETE SETTINGS
 // =======================
 async function deleteSettings() {
+
+  const idEntreprise = entrepriseInput.value.trim();
 
   if (!idEntreprise) return;
 
@@ -207,6 +191,7 @@ async function deleteSettings() {
   headerText.value = "";
   footerText.value = "";
   enableTVA.checked = false;
+
   localStorage.removeItem("logo");
 
   updatePreview();
@@ -267,9 +252,7 @@ document.querySelectorAll("textarea").forEach(el => {
 
 // INIT AUTO LOAD
 window.addEventListener("load", () => {
-  if (idEntreprise) {
-    entrepriseInput.value = idEntreprise;
-  }
+  document.body.style.display = "block";
 });
 
 </script>
