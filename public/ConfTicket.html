@@ -7,12 +7,12 @@
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
-<!-- GLOBAL CONFIG -->
 <script src="globalconfig.js"></script>
 </head>
 
 <body class="bg-light" style="display:none;">
 
+<!-- LOGIN CHECK -->
 <script>
 (function () {
 
@@ -28,14 +28,10 @@
 })();
 </script>
 
-
-
-<!-- MENU RESPONSIVE -->
+<!-- NAVBAR -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark px-3">
-
   <a class="navbar-brand fw-bold" href="#">🛒 HELPSTORE</a>
 
-  <!-- BOUTON MOBILE -->
   <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menu">
     ☰
   </button>
@@ -44,17 +40,12 @@
     <div class="navbar-nav ms-auto">
       <a class="nav-link text-white" href="Menu admin.html">Menu</a>
     </div>
- <!-- 👇 ICI -->
-  <span id="currentUser" class="text-white ms-3"></span>
 
+    <span id="currentUser" class="text-white ms-3"></span>
   </div>
-
 </nav>
 
-
-
-
-
+<!-- CONTENT -->
 <div class="container py-4">
 
 <h3 class="text-center mb-4">⚙️ Ticket Multi-Entreprise</h3>
@@ -84,7 +75,7 @@
 </div>
 
 <button onclick="saveSettings()" class="btn btn-primary w-100 my-1">💾 Sauvegarder</button>
-<button onclick="loadSettings()" class="btn btn-warning w-100 my-1">✏️ Recharger</button>
+<button onclick="setEntreprise()" class="btn btn-warning w-100 my-1">✏️ Recharger</button>
 <button onclick="deleteSettings()" class="btn btn-danger w-100 my-1">🗑 Supprimer</button>
 
 </div>
@@ -105,6 +96,19 @@
 
 <script>
 
+/* =======================
+   DOM ELEMENTS
+======================= */
+const entrepriseInput = document.getElementById("entrepriseInput");
+const headerText = document.getElementById("headerText");
+const footerText = document.getElementById("footerText");
+const enableTVA = document.getElementById("enableTVA");
+const preview = document.getElementById("preview");
+const logoInput = document.getElementById("logoInput");
+
+/* =======================
+   SET ENTREPRISE
+======================= */
 function setEntreprise() {
 
   const idEntreprise = entrepriseInput.value.trim();
@@ -117,10 +121,15 @@ function setEntreprise() {
   loadSettings(idEntreprise);
 }
 
-// =======================
-// LOAD SETTINGS
-// =======================
+/* =======================
+   LOAD SETTINGS
+======================= */
 async function loadSettings(idEntreprise) {
+
+  if (!idEntreprise) {
+    alert("ID entreprise manquant !");
+    return;
+  }
 
   try {
 
@@ -142,9 +151,9 @@ async function loadSettings(idEntreprise) {
   }
 }
 
-// =======================
-// SAVE SETTINGS
-// =======================
+/* =======================
+   SAVE SETTINGS
+======================= */
 async function saveSettings() {
 
   const idEntreprise = entrepriseInput.value.trim();
@@ -173,9 +182,9 @@ async function saveSettings() {
   alert("Sauvegardé ✔");
 }
 
-// =======================
-// DELETE SETTINGS
-// =======================
+/* =======================
+   DELETE SETTINGS
+======================= */
 async function deleteSettings() {
 
   const idEntreprise = entrepriseInput.value.trim();
@@ -199,9 +208,9 @@ async function deleteSettings() {
   alert("Supprimé ✔");
 }
 
-// =======================
-// LOGO UPLOAD
-// =======================
+/* =======================
+   LOGO UPLOAD
+======================= */
 logoInput.addEventListener("change", e => {
 
   const reader = new FileReader();
@@ -214,9 +223,9 @@ logoInput.addEventListener("change", e => {
   reader.readAsDataURL(e.target.files[0]);
 });
 
-// =======================
-// PREVIEW
-// =======================
+/* =======================
+   PREVIEW
+======================= */
 function updatePreview() {
 
   let logo = localStorage.getItem("logo");
@@ -224,7 +233,7 @@ function updatePreview() {
   let html = "";
 
   if (logo) {
-html += `<img src="${logo}" style="max-width:180px; max-height:200px; object-fit:contain;"><br>`;
+    html += `<img src="${logo}" style="max-width:180px; max-height:200px; object-fit:contain;"><br>`;
   }
 
   html += `<p>${headerText.value.replace(/\n/g,"<br>")}</p><hr>`;
@@ -245,19 +254,14 @@ html += `<img src="${logo}" style="max-width:180px; max-height:200px; object-fit
   preview.innerHTML = html;
 }
 
-// LIVE UPDATE
+/* LIVE UPDATE */
 document.querySelectorAll("textarea").forEach(el => {
   el.addEventListener("input", updatePreview);
 });
 
-// INIT AUTO LOAD
-window.addEventListener("load", () => {
-  document.body.style.display = "block";
-});
-
 </script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 </html>
