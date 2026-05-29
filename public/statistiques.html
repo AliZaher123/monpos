@@ -226,10 +226,11 @@
                 // =========================
 
                 const topResponse = await fetch(
-
-                    `/api/ventes/top-produits?idEntreprise=${idEntreprise}&dateDebut=${dateDebut}&dateFin=${dateFin}`
-
-                );
+    `/ventes/top-produits?idEntreprise=${idEntreprise}&dateDebut=${dateDebut}&dateFin=${dateFin}`,
+    {
+        credentials: "include"
+    }
+);
 
                 const topData = await topResponse.json();
 
@@ -298,11 +299,12 @@
                 // MOINS VENDUS
                 // =========================
 
-                const moinsResponse = await fetch(
-
-                    `/api/ventes/moins-vendus?idEntreprise=${idEntreprise}&dateDebut=${dateDebut}&dateFin=${dateFin}`
-
-                );
+               const moinsResponse = await fetch(
+    `/ventes/moins-vendus?idEntreprise=${idEntreprise}&dateDebut=${dateFin}&dateFin=${dateFin}`,
+    {
+        credentials: "include"
+    }
+);
 
                 const moinsData = await moinsResponse.json();
 
