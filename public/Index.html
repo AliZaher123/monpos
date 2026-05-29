@@ -761,16 +761,24 @@ setTimeout(() => {
 // ==========================
 function printTicket(html) {
 
-  const w = window.open('', '', 'width=400,height=600');
+  const printArea = document.createElement("iframe");
 
-  w.document.open();
+  printArea.style.position = "fixed";
+  printArea.style.right = "0";
+  printArea.style.bottom = "0";
+  printArea.style.width = "0";
+  printArea.style.height = "0";
+  printArea.style.border = "0";
 
-  w.document.write(`
+  document.body.appendChild(printArea);
+
+  const doc = printArea.contentWindow.document;
+
+  doc.open();
+  doc.write(`
     <!DOCTYPE html>
     <html>
     <head>
-      <title>Ticket</title>
-
       <style>
 
         @page {
@@ -778,21 +786,12 @@ function printTicket(html) {
           margin: 0;
         }
 
-        html, body {
+        body {
           width: 72mm;
           margin: 0;
-          padding: 0;
+          padding: 5px;
           font-family: monospace;
         }
-
-        #ticket {
-          width: 72mm;
-          padding: 5px;
-          box-sizing: border-box;
-        }
-
-        .center { text-align: center; }
-        .left { text-align: left; }
 
         img {
           width: 150px;
@@ -802,35 +801,26 @@ function printTicket(html) {
 
         hr {
           border: none;
-          border-top: 1px dashed #000;
-          margin: 6px 0;
+          border-top: 1px dashed black;
         }
 
       </style>
-
     </head>
 
     <body>
-
-      <div id="ticket">
-        ${html}
-      </div>
-
-      <script>
-        window.onload = function () {
-          setTimeout(function () {
-            window.focus();
-            window.print();
-            window.close();
-          }, 600);
-        };
-      <\/script>
-
+      ${html}
     </body>
     </html>
   `);
+  doc.close();
 
-  w.document.close();
+  printArea.contentWindow.focus();
+  printArea.contentWindow.print();
+
+  setTimeout(() => {
+    document.body.removeChild(printArea);
+  }, 1000);
+
 }
 
 
