@@ -761,63 +761,77 @@ setTimeout(() => {
 // ==========================
 function printTicket(html) {
 
-  let w = window.open("", "_blank");
+  // ouvrir fenêtre impression
+  const w = window.open('', 'PRINT', 'height=600,width=400');
 
-  w.document.open();
+  // attendre que la fenêtre soit prête
+  w.onload = function () {
 
-  w.document.write(`
-    <html>
-    <head>
-      <title>Ticket</title>
+    // injecter contenu ticket
+    w.document.body.innerHTML = `
 
       <style>
-        body {
-          font-family: monospace;
+
+        @page {
+          size: 72mm auto;
           margin: 0;
-          padding: 10px;
         }
 
-        .center {
-          text-align: center;
+        html, body {
+          width: 72mm;
+          margin: 0;
+          padding: 0;
+          font-family: monospace;
         }
 
-        .left {
-          text-align: left;
+        #ticket {
+          width: 72mm;
+          padding: 5px;
+          box-sizing: border-box;
         }
 
-        img {
-  width: 180px;
-  max-width: 100%;
-  height: auto;
-  display: block;
-  margin: auto;
-}
-
-        hr {
-          border: none;
-          border-top: 1px dashed #000;
-          margin: 8px 0;
+        .center{
+          text-align:center;
         }
+
+        .left{
+          text-align:left;
+        }
+
+        img{
+          width:150px;
+          max-width:100%;
+          display:block;
+          margin:auto;
+        }
+
+        hr{
+          border:none;
+          border-top:1px dashed black;
+          margin:5px 0;
+        }
+
       </style>
 
-    </head>
+      <div id="ticket">
 
-    <body onload="window.print()">
-      ${html}
-    </body>
-    </html>
-  `);
+        ${html}
 
-  w.document.close();
+      </div>
 
-  // 🔥 attendre chargement COMPLET (IMPORTANT pour logo base64)
-  w.onload = function () {
+    `;
+
+    // attendre chargement complet
     setTimeout(() => {
+
       w.focus();
+
       w.print();
-      w.close();
-    }, 300);
+
+    }, 700);
+
   };
+
 }
 
 
