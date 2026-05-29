@@ -761,9 +761,7 @@ setTimeout(() => {
 // ==========================
 function printTicket(html) {
 
-  let w = window.open("", "_blank");
-
-  w.document.open();
+  let w = window.open("", "_blank", "width=400,height=600");
 
   w.document.write(`
     <html>
@@ -771,7 +769,14 @@ function printTicket(html) {
       <title>Ticket</title>
 
       <style>
+
+        @page {
+          size: 80mm auto;
+          margin: 0;
+        }
+
         body {
+          width: 80mm;
           font-family: monospace;
           margin: 0;
           padding: 10px;
@@ -786,23 +791,23 @@ function printTicket(html) {
         }
 
         img {
-  width: 180px;
-  max-width: 100%;
-  height: auto;
-  display: block;
-  margin: auto;
-}
+          width: 180px;
+          max-width: 100%;
+          height: auto;
+          display: block;
+          margin: auto;
+        }
 
         hr {
           border: none;
           border-top: 1px dashed #000;
           margin: 8px 0;
         }
-      </style>
 
+      </style>
     </head>
 
-    <body onload="window.print()">
+    <body>
       ${html}
     </body>
     </html>
@@ -810,14 +815,24 @@ function printTicket(html) {
 
   w.document.close();
 
-  // 🔥 attendre chargement COMPLET (IMPORTANT pour logo base64)
+  // attendre chargement complet
   w.onload = function () {
+
     setTimeout(() => {
+
       w.focus();
+
       w.print();
-      w.close();
-    }, 300);
+
+      // fermer après impression
+      w.onafterprint = () => {
+        w.close();
+      };
+
+    }, 500);
+
   };
+
 }
 
 
