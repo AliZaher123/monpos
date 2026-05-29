@@ -761,9 +761,10 @@ setTimeout(() => {
 // ==========================
 function printTicket(html) {
 
-  let w = window.open("", "_blank", "width=400,height=600");
+  const printWindow = window.open('', '', 'width=300,height=600');
 
-  w.document.write(`
+  printWindow.document.write(`
+    <!DOCTYPE html>
     <html>
     <head>
       <title>Ticket</title>
@@ -775,61 +776,50 @@ function printTicket(html) {
           margin: 0;
         }
 
-        body {
+        html, body {
           width: 80mm;
-          font-family: monospace;
           margin: 0;
-          padding: 10px;
+          padding: 0;
+          overflow: hidden;
+          font-family: monospace;
         }
 
-        .center {
-          text-align: center;
+        #ticket {
+          width: 72mm;
+          padding: 5mm;
+          box-sizing: border-box;
         }
 
-        .left {
-          text-align: left;
-        }
-
-        img {
-          width: 180px;
-          max-width: 100%;
-          height: auto;
-          display: block;
-          margin: auto;
-        }
-
-        hr {
-          border: none;
-          border-top: 1px dashed #000;
-          margin: 8px 0;
+        img{
+          width:150px;
+          display:block;
+          margin:auto;
         }
 
       </style>
     </head>
 
     <body>
-      ${html}
+
+      <div id="ticket">
+        ${html}
+      </div>
+
     </body>
     </html>
   `);
 
-  w.document.close();
+  printWindow.document.close();
 
-  // attendre chargement complet
-  w.onload = function () {
+  printWindow.onload = () => {
 
     setTimeout(() => {
 
-      w.focus();
+      printWindow.focus();
 
-      w.print();
+      printWindow.print();
 
-      // fermer après impression
-      w.onafterprint = () => {
-        w.close();
-      };
-
-    }, 500);
+    }, 1000);
 
   };
 
