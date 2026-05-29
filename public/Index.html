@@ -761,65 +761,49 @@ setTimeout(() => {
 // ==========================
 function printTicket(html) {
 
-  const printWindow = window.open('', '', 'width=300,height=600');
+  const w = window.open('', '', 'width=300,height=600');
 
-  printWindow.document.write(`
+  w.document.write(`
     <!DOCTYPE html>
     <html>
     <head>
-      <title>Ticket</title>
 
       <style>
 
         @page {
-          size: 80mm auto;
           margin: 0;
         }
 
-        html, body {
-          width: 80mm;
+        body {
+          width: 72mm;
           margin: 0;
-          padding: 0;
-          overflow: hidden;
+          padding: 5px;
           font-family: monospace;
         }
 
-        #ticket {
-          width: 72mm;
-          padding: 5mm;
-          box-sizing: border-box;
-        }
-
-        img{
-          width:150px;
-          display:block;
-          margin:auto;
-        }
-
       </style>
+
     </head>
 
     <body>
 
-      <div id="ticket">
-        ${html}
-      </div>
+      ${html}
 
     </body>
     </html>
   `);
 
-  printWindow.document.close();
+  w.document.close();
 
-  printWindow.onload = () => {
+  w.onload = () => {
 
     setTimeout(() => {
 
-      printWindow.focus();
+      w.focus();
 
-      printWindow.print();
+      w.print();
 
-    }, 1000);
+    }, 500);
 
   };
 
