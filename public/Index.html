@@ -761,57 +761,63 @@ setTimeout(() => {
 // ==========================
 function printTicket(html) {
 
-  const w = window.open();
+  let w = window.open("", "_blank");
+
+  w.document.open();
 
   w.document.write(`
-    <!DOCTYPE html>
     <html>
-
     <head>
       <title>Ticket</title>
 
       <style>
-
-        @page{
-          margin:0;
+        body {
+          font-family: monospace;
+          margin: 0;
+          padding: 10px;
         }
 
-        body{
-          width:72mm;
-          margin:0;
-          padding:5px;
-          font-family:monospace;
+        .center {
+          text-align: center;
         }
 
+        .left {
+          text-align: left;
+        }
+
+        img {
+  width: 180px;
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: auto;
+}
+
+        hr {
+          border: none;
+          border-top: 1px dashed #000;
+          margin: 8px 0;
+        }
       </style>
 
     </head>
 
-    <body>
-
+    <body onload="window.print()">
       ${html}
-
-      <script>
-
-        window.onload = function(){
-
-          setTimeout(() => {
-
-            window.print();
-
-          }, 500);
-
-        }
-
-      <\/script>
-
     </body>
-
     </html>
   `);
 
   w.document.close();
 
+  // 🔥 attendre chargement COMPLET (IMPORTANT pour logo base64)
+  w.onload = function () {
+    setTimeout(() => {
+      w.focus();
+      w.print();
+      w.close();
+    }, 300);
+  };
 }
 
 
