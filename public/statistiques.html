@@ -197,198 +197,101 @@
 
     <script>
 
-        // =========================
-        // ID ENTREPRISE
-        // =========================
 
-        const idEntreprise =
-            localStorage.getItem("idEntreprise");
+const idEntreprise = localStorage.getItem("idEntreprise");
 
+// =========================
+// CHARGER STATISTIQUES (UNIQUEMENT AU CLICK)
+// =========================
 
+async function chargerStatistiques() {
 
-        // =========================
-        // CHARGER STATISTIQUES
-        // =========================
+    const dateDebut = document.getElementById("dateDebut").value;
+    const dateFin = document.getElementById("dateFin").value;
 
-        async function chargerStatistiques() {
-
-            try {
-
-                const dateDebut =
-                    document.getElementById("dateDebut").value;
-
-                const dateFin =
-                    document.getElementById("dateFin").value;
-
-
-                // =========================
-                // TOP PRODUITS
-                // =========================
-
-                const topResponse = await fetch(
-    `/ventes/top-produits?idEntreprise=${idEntreprise}&dateDebut=${dateDebut}&dateFin=${dateFin}`,
-    {
-        credentials: "include"
+    // ❌ BLOQUER si dates vides
+    if (!dateDebut || !dateFin) {
+        alert("Veuillez sélectionner une date début et une date fin");
+        return;
     }
-);
 
-                const topData = await topResponse.json();
-
-                const topContainer =
-                    document.getElementById("topVentes");
-
-                topContainer.innerHTML = "";
-
-
-                if (topData.length === 0) {
-
-                    topContainer.innerHTML = `
-                    
-                    <tr>
-
-                        <td colspan="4" class="text-center text-muted">
-
-                            Aucun résultat
-
-                        </td>
-
-                    </tr>
-
-                    `;
-                }
-
-
-                topData.forEach((item, index) => {
-
-                    topContainer.innerHTML += `
-
-                    <tr>
-
-                        <td>
-                            ${index + 1}
-                        </td>
-
-                        <td>
-                            ${item._id}
-                        </td>
-
-                        <td>
-
-                            <span class="badge bg-success">
-
-                                ${item.totalQuantite}
-
-                            </span>
-
-                        </td>
-
-                        <td>
-
-                            ${item.totalVentes.toFixed(2)} $
-
-                        </td>
-
-                    </tr>
-
-                    `;
-                });
-
-
-
-                // =========================
-                // MOINS VENDUS
-                // =========================
-
-               const moinsResponse = await fetch(
-    `/ventes/moins-vendus?idEntreprise=${idEntreprise}&dateDebut=${dateFin}&dateFin=${dateFin}`,
-    {
-        credentials: "include"
-    }
-);
-
-                const moinsData = await moinsResponse.json();
-
-                const moinsContainer =
-                    document.getElementById("moinsVentes");
-
-                moinsContainer.innerHTML = "";
-
-
-                if (moinsData.length === 0) {
-
-                    moinsContainer.innerHTML = `
-                    
-                    <tr>
-
-                        <td colspan="4" class="text-center text-muted">
-
-                            Aucun résultat
-
-                        </td>
-
-                    </tr>
-
-                    `;
-                }
-
-
-                moinsData.forEach((item, index) => {
-
-                    moinsContainer.innerHTML += `
-
-                    <tr>
-
-                        <td>
-                            ${index + 1}
-                        </td>
-
-                        <td>
-                            ${item._id}
-                        </td>
-
-                        <td>
-
-                            <span class="badge bg-danger">
-
-                                ${item.totalQuantite}
-
-                            </span>
-
-                        </td>
-
-                        <td>
-
-                            ${item.totalVentes.toFixed(2)} $
-
-                        </td>
-
-                    </tr>
-
-                    `;
-                });
-
-            }
-
-            catch (error) {
-
-                console.log(error);
-
-                alert("Erreur lors du chargement");
-
-            }
-
+    try {
+
+        // TOP PRODUITS
+        const topResponse = await fetch(
+            `/ventes/top-produits?idEntreprise=${idEntreprise}&dateDebut=${dateDebut}&dateFin=${dateFin}`,
+            { credentials: "include" }
+        );
+
+        const topData = await topResponse.json();
+
+        const topContainer = document.getElementById("topVentes");
+        topContainer.innerHTML = "";
+
+        if (topData.length === 0) {
+            topContainer.innerHTML = `
+                <tr>
+                    <td colspan="4" class="text-center text-muted">
+                        Aucun résultat
+                    </td>
+                </tr>
+            `;
         }
 
+        topData.forEach((item, index) => {
+            topContainer.innerHTML += `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${item._id}</td>
+                    <td><span class="badge bg-success">${item.totalQuantite}</span></td>
+                    <td>${item.totalVentes.toFixed(2)} $</td>
+                </tr>
+            `;
+        });
 
-        // =========================
-        // AUTO LOAD
-        // =========================
+        // MOINS VENDUS
+        const moinsResponse = await fetch(
+            `/ventes/moins-vendus?idEntreprise=${idEntreprise}&dateDebut=${dateDebut}&dateFin=${dateFin}`,
+            { credentials: "include" }
+        );
 
-        chargerStatistiques();
+        const moinsData = await moinsResponse.json();
+
+        const moinsContainer = document.getElementById("moinsVentes");
+        moinsContainer.innerHTML = "";
+
+        if (moinsData.length === 0) {
+            moinsContainer.innerHTML = `
+                <tr>
+                    <td colspan="4" class="text-center text-muted">
+                        Aucun résultat
+                    </td>
+                </tr>
+            `;
+        }
+
+        moinsData.forEach((item, index) => {
+            moinsContainer.innerHTML += `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${item._id}</td>
+                    <td><span class="badge bg-danger">${item.totalQuantite}</span></td>
+                    <td>${item.totalVentes.toFixed(2)} $</td>
+                </tr>
+            `;
+        });
+
+    } catch (error) {
+        console.log(error);
+        alert("Erreur lors du chargement");
+    }
+}
+
+
 
     </script>
 
 </body>
 
 </html>
-```
+

@@ -176,7 +176,7 @@ router.get("/", async (req, res) => {
 
 
 
-
+//POUR STATISTIQUE.HTML
 
 
 
@@ -375,9 +375,6 @@ router.get("/moins-vendus", async (req, res) => {
   }
 
 });
-
-
-
 
 
 module.exports = router;
