@@ -761,14 +761,15 @@ setTimeout(() => {
 // ==========================
 function printTicket(html) {
 
-  // ouvrir fenêtre impression
-  const w = window.open('', 'PRINT', 'height=600,width=400');
+  const w = window.open('', '', 'width=400,height=600');
 
-  // attendre que la fenêtre soit prête
-  w.onload = function () {
+  w.document.open();
 
-    // injecter contenu ticket
-    w.document.body.innerHTML = `
+  w.document.write(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Ticket</title>
 
       <style>
 
@@ -790,48 +791,46 @@ function printTicket(html) {
           box-sizing: border-box;
         }
 
-        .center{
-          text-align:center;
+        .center { text-align: center; }
+        .left { text-align: left; }
+
+        img {
+          width: 150px;
+          display: block;
+          margin: auto;
         }
 
-        .left{
-          text-align:left;
-        }
-
-        img{
-          width:150px;
-          max-width:100%;
-          display:block;
-          margin:auto;
-        }
-
-        hr{
-          border:none;
-          border-top:1px dashed black;
-          margin:5px 0;
+        hr {
+          border: none;
+          border-top: 1px dashed #000;
+          margin: 6px 0;
         }
 
       </style>
 
+    </head>
+
+    <body>
+
       <div id="ticket">
-
         ${html}
-
       </div>
 
-    `;
+      <script>
+        window.onload = function () {
+          setTimeout(function () {
+            window.focus();
+            window.print();
+            window.close();
+          }, 600);
+        };
+      <\/script>
 
-    // attendre chargement complet
-    setTimeout(() => {
+    </body>
+    </html>
+  `);
 
-      w.focus();
-
-      w.print();
-
-    }, 700);
-
-  };
-
+  w.document.close();
 }
 
 
