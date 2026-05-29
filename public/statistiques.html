@@ -1,0 +1,210 @@
+```html
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Statistiques</title>
+
+    <!-- Bootstrap -->
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+</head>
+
+<body class="bg-light">
+
+    <div class="container py-4">
+
+        <!-- Titre -->
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+
+            <h2 class="fw-bold">
+                📊 Statistiques des ventes
+            </h2>
+
+            <button class="btn btn-dark" onclick="chargerStatistiques()">
+                Actualiser
+            </button>
+
+        </div>
+
+        <div class="row">
+
+            <!-- PLUS VENDUS -->
+
+            <div class="col-lg-6 mb-4">
+
+                <div class="card shadow-sm border-0">
+
+                    <div class="card-header bg-success text-white">
+
+                        <h5 class="mb-0">
+                            🔥 Articles les plus vendus
+                        </h5>
+
+                    </div>
+
+                    <div class="card-body">
+
+                        <table class="table table-hover align-middle">
+
+                            <thead>
+
+                                <tr>
+                                    <th>#</th>
+                                    <th>Article</th>
+                                    <th>Quantité</th>
+                                </tr>
+
+                            </thead>
+
+                            <tbody id="topVentes">
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- MOINS VENDUS -->
+
+            <div class="col-lg-6 mb-4">
+
+                <div class="card shadow-sm border-0">
+
+                    <div class="card-header bg-danger text-white">
+
+                        <h5 class="mb-0">
+                            📉 Articles les moins vendus
+                        </h5>
+
+                    </div>
+
+                    <div class="card-body">
+
+                        <table class="table table-hover align-middle">
+
+                            <thead>
+
+                                <tr>
+                                    <th>#</th>
+                                    <th>Article</th>
+                                    <th>Quantité</th>
+                                </tr>
+
+                            </thead>
+
+                            <tbody id="moinsVentes">
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+
+        async function chargerStatistiques() {
+
+            try {
+
+                // TOP VENTES
+
+                const topResponse = await fetch('/api/stats/top-produits');
+                const topData = await topResponse.json();
+
+                const topContainer = document.getElementById("topVentes");
+
+                topContainer.innerHTML = "";
+
+                topData.forEach((item, index) => {
+
+                    topContainer.innerHTML += `
+                    
+                    <tr>
+
+                        <td>${index + 1}</td>
+
+                        <td>${item._id}</td>
+
+                        <td>
+                            <span class="badge bg-success">
+                                ${item.totalQuantite}
+                            </span>
+                        </td>
+
+                    </tr>
+
+                    `;
+
+                });
+
+
+                // MOINS VENDUS
+
+                const moinsResponse = await fetch('/api/stats/moins-vendus');
+                const moinsData = await moinsResponse.json();
+
+                const moinsContainer = document.getElementById("moinsVentes");
+
+                moinsContainer.innerHTML = "";
+
+                moinsData.forEach((item, index) => {
+
+                    moinsContainer.innerHTML += `
+                    
+                    <tr>
+
+                        <td>${index + 1}</td>
+
+                        <td>${item._id}</td>
+
+                        <td>
+                            <span class="badge bg-danger">
+                                ${item.totalQuantite}
+                            </span>
+                        </td>
+
+                    </tr>
+
+                    `;
+
+                });
+
+            }
+
+            catch (error) {
+
+                console.log(error);
+
+                alert("Erreur lors du chargement des statistiques");
+
+            }
+
+        }
+
+        chargerStatistiques();
+
+    </script>
+
+</body>
+
+</html>
+```
