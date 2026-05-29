@@ -181,4 +181,203 @@ router.get("/", async (req, res) => {
 
 
 
+// =========================
+// 🔥 TOP PRODUITS VENDUS
+// =========================
+router.get("/top-produits", async (req, res) => {
+
+  try {
+
+    const {
+      idEntreprise,
+      dateDebut,
+      dateFin
+    } = req.query;
+
+    if (!idEntreprise) {
+      return res.status(400).json({
+        message: "idEntreprise requis"
+      });
+    }
+
+    // =========================
+    // FILTRE DATE
+    // =========================
+    const match = {
+      idEntreprise
+    };
+
+    if (dateDebut || dateFin) {
+
+      match.date = {};
+
+      if (dateDebut) {
+        match.date.$gte = new Date(dateDebut + "T00:00:00");
+      }
+
+      if (dateFin) {
+        match.date.$lte = new Date(dateFin + "T23:59:59.999");
+      }
+    }
+
+    // =========================
+    // AGGREGATE
+    // =========================
+    const produits = await Vente.aggregate([
+
+      // filtre entreprise + date
+      {
+        $match: match
+      },
+
+      // ouvrir tableau produits
+      {
+        $unwind: "$produits"
+      },
+
+      // grouper par nom produit
+      {
+        $group: {
+
+          _id: "$produits.nom",
+
+          totalQuantite: {
+            $sum: "$produits.quantite"
+          },
+
+          totalVentes: {
+            $sum: "$produits.total"
+          }
+
+        }
+      },
+
+      // trier du plus vendu
+      {
+        $sort: {
+          totalQuantite: -1
+        }
+      },
+
+      // limiter
+      {
+        $limit: 10
+      }
+
+    ]);
+
+    res.json(produits);
+
+  }
+
+  catch (error) {
+
+    console.log(error);
+
+    res.status(500).json({
+      error: error.message
+    });
+
+  }
+
+});
+
+
+
+// =========================
+// 📉 MOINS VENDUS
+// =========================
+router.get("/moins-vendus", async (req, res) => {
+
+  try {
+
+    const {
+      idEntreprise,
+      dateDebut,
+      dateFin
+    } = req.query;
+
+    if (!idEntreprise) {
+      return res.status(400).json({
+        message: "idEntreprise requis"
+      });
+    }
+
+    const match = {
+      idEntreprise
+    };
+
+    if (dateDebut || dateFin) {
+
+      match.date = {};
+
+      if (dateDebut) {
+        match.date.$gte = new Date(dateDebut + "T00:00:00");
+      }
+
+      if (dateFin) {
+        match.date.$lte = new Date(dateFin + "T23:59:59.999");
+      }
+
+    }
+
+    const produits = await Vente.aggregate([
+
+      {
+        $match: match
+      },
+
+      {
+        $unwind: "$produits"
+      },
+
+      {
+        $group: {
+
+          _id: "$produits.nom",
+
+          totalQuantite: {
+            $sum: "$produits.quantite"
+          },
+
+          totalVentes: {
+            $sum: "$produits.total"
+          }
+
+        }
+      },
+
+      // ordre croissant
+      {
+        $sort: {
+          totalQuantite: 1
+        }
+      },
+
+      {
+        $limit: 10
+      }
+
+    ]);
+
+    res.json(produits);
+
+  }
+
+  catch (error) {
+
+    console.log(error);
+
+    res.status(500).json({
+      error: error.message
+    });
+
+  }
+
+});
+
+
+
+
+
 module.exports = router;
