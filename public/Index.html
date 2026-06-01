@@ -830,12 +830,17 @@ function printTicket(html) {
 
 
 function openCashDrawer() {
-  const cmd = '\x1B\x70\x00\x19\xFA';
-
   let w = window.open("", "_blank");
-  w.document.write(cmd);
-  w.print();
-  w.close();
+
+  w.document.write(`
+    <html>
+    <body onload="window.print(); window.close();">
+      <div style="height:1px;">.</div>
+    </body>
+    </html>
+  `);
+
+  w.document.close();
 }
 
 
