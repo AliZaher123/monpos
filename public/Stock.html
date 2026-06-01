@@ -4,17 +4,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<title>Gestion Stock SaaS</title>
+<title>Gestion Stock</title>
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<!-- GLOBAL CONFIG -->
+
 <script src="globalconfig.js"></script>
 </head>
 
-<body class="bg-light">
+<body class="bg-light" id="app" style="display:none;">
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark px-3">
-  <a class="navbar-brand fw-bold" href="#">📦 GESTION STOCK SAAS</a>
+  <a class="navbar-brand fw-bold" href="#">📦 GESTION STOCK</a>
 
   <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#menu">
     ☰
@@ -49,7 +49,7 @@
 <input id="price" type="number" class="form-control my-2" placeholder="Prix (USD)">
 
 <div id="qtyBox">
-  <input id="qty" type="number" class="form-control my-2" placeholder="Quantité">
+  <input id="qty" type="number" class="form-control my-2" placeholder="Quantité" min="0">
 </div>
 
 <select id="tva" class="form-select my-2"></select>
@@ -67,6 +67,17 @@
 <!-- TABLE -->
 <div class="col-12 col-md-8">
 <div class="card p-3 shadow-sm">
+
+<div class="d-flex justify-content-end gap-2 mb-2">
+    <button class="btn btn-success" onclick="exportExcel()">
+        📊 Exporter Excel
+    </button>
+
+    <button class="btn btn-dark" onclick="printReport()">
+        🖨 Imprimer rapport
+    </button>
+</div>
+
 
 <div class="table-responsive">
 <table class="table table-bordered table-sm">
@@ -99,6 +110,55 @@
 
 <script>
 
+
+
+// Vérification AVANT que la page ne s'affiche
+if (typeof API === "undefined" || !API) {
+  window.location.replace("Login.html");
+} else {
+  (async () => {
+    try {
+      const res = await fetch(`${API}/me`, {
+        credentials: "include",
+        cache: "no-store" // évite l'utilisation du cache du navigateur
+      });
+
+      // Si la session n'est pas valide
+      if (!res.ok) {
+        window.location.replace("Login.html");
+        return;
+      }
+
+      const data = await res.json();
+
+      // Aucun utilisateur connecté
+      if (!data.user) {
+        window.location.replace("Login.html");
+        return;
+      }
+
+      // Autorisé → afficher la page
+      document.getElementById("app").style.display = "block";
+
+    } catch (err) {
+      // En cas d'erreur réseau ou autre
+      window.location.replace("Login.html");
+    }
+  })();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 let stock = [];
 let categories = [];
 
@@ -106,21 +166,20 @@ let idEntreprise = localStorage.getItem("idEntreprise");
 
 if (!idEntreprise) {
     alert("Aucune entreprise détectée !");
-    window.location.href = "login.html";
+    window.location.href = "Login.html";
 }
 
 // ========================
-// TOGGLE SERVICE / PRODUIT
+// TOGGLE
 // ========================
 function toggleStockFields() {
     const type = document.getElementById("type").value;
-    const qtyBox = document.getElementById("qtyBox");
-
-    qtyBox.style.display = (type === "Service") ? "none" : "block";
+    document.getElementById("qtyBox").style.display =
+        (type === "Service") ? "none" : "block";
 }
 
 // ========================
-// CATEGORIES
+// LOAD CATEGORIES
 // ========================
 async function loadCategories() {
     let res = await fetch(`${API}/categorie?idEntreprise=` + idEntreprise);
@@ -135,7 +194,7 @@ async function loadCategories() {
 }
 
 // ========================
-// STOCK
+// LOAD STOCK
 // ========================
 async function loadStock() {
     let res = await fetch(`${API}/stock?idEntreprise=` + idEntreprise);
@@ -144,7 +203,7 @@ async function loadStock() {
 }
 
 // ========================
-// ADD
+// ADD PRODUCT
 // ========================
 async function addProduct() {
 
@@ -194,7 +253,7 @@ async function removeItem(id) {
 }
 
 // ========================
-// UPDATE QTY
+// UPDATE QUANTITE ACTUELLE
 // ========================
 async function updateQty(id, val) {
 
@@ -202,6 +261,20 @@ async function updateQty(id, val) {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ quantite: parseInt(val) })
+    });
+
+    loadStock();
+}
+
+// ========================
+// UPDATE QUANTITE INITIALE
+// ========================
+async function updateQtyInitial(id, val) {
+
+    await fetch(`${API}/stock/` + id + "?idEntreprise=" + idEntreprise, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ quantiteInitiale: parseInt(val) })
     });
 
     loadStock();
@@ -230,10 +303,13 @@ function render() {
         let qtyInitial = p.quantiteInitiale || 0;
         let qty = isService ? "-" : Number(p.quantite) || 0;
 
-        let price = Number(p.prix) || 0;
+        let priceTTC = Number(p.prix) || 0;   // ⚠️ prix TTC
         let tva = Number(p.tva) || 0;
 
-        let priceTTC = price + (price * tva / 100);
+        // ✅ EXTRAIRE TVA
+        let priceHT = priceTTC / (1 + tva / 100);
+        let montantTVA = priceTTC - priceHT;
+
         let totalTTC = isService ? priceTTC : priceTTC * qty;
 
         tbody.innerHTML += `
@@ -241,29 +317,43 @@ function render() {
             <td>${p.nom}</td>
             <td>${p.codebarre}</td>
             <td>${p.categorie}</td>
-            <td>${p.type || "Produit"}</td>
+            <td>${p.type}</td>
 
+            <!-- PRIX TTC -->
             <td class="text-primary fw-bold">
                 ${priceTTC.toFixed(2)} $
             </td>
 
-            <td class="fw-bold text-secondary">
-                ${isService ? "-" : qtyInitial}
-            </td>
-
+            <!-- QTÉ INITIALE -->
             <td>
-                ${
-                  isService
-                    ? "-"
-                    : `<input type="number"
-                        value="${qty}"
-                        class="form-control form-control-sm"
-                        onchange="updateQty('${p._id}', this.value)">`
-                }
+            ${
+                isService
+                ? "-"
+                : `<input type="number"
+                    min="0"
+                    value="${qtyInitial}"
+                    class="form-control form-control-sm"
+                    onchange="updateQtyInitial('${p._id}', this.value)">`
+            }
             </td>
 
+            <!-- QTÉ ACTUELLE -->
+            <td>
+            ${
+                isService
+                ? "-"
+                : `<input type="number"
+                    min="0"
+                    value="${qty}"
+                    class="form-control form-control-sm"
+                    onchange="updateQty('${p._id}', this.value)">`
+            }
+            </td>
+
+            <!-- TVA % -->
             <td>${tva}%</td>
 
+            <!-- TOTAL TTC -->
             <td class="text-success fw-bold">
                 ${totalTTC.toFixed(2)} $
             </td>
@@ -280,7 +370,7 @@ function render() {
 }
 
 // ========================
-// CLEAR
+// CLEAR FORM
 // ========================
 function clearForm() {
     document.getElementById("name").value = "";
@@ -315,8 +405,164 @@ function chargerTva() {
 }
 chargerTva();
 
-</script>
 
+
+
+function printReport() {
+
+    const date = new Date().toLocaleString();
+
+    // Générer les lignes du tableau
+    const rows = stock.map(p => {
+        const isService = p.type === "Service";
+        const qtyInitial = isService ? "-" : (Number(p.quantiteInitiale) || 0);
+        const qty = isService ? "-" : (Number(p.quantite) || 0);
+        const prix = Number(p.prix) || 0;
+        const tva = Number(p.tva) || 0;
+        const total = isService ? prix : prix * qty;
+
+        return `
+            <tr>
+                <td>${p.nom || ""}</td>
+                <td>${p.codebarre || ""}</td>
+                <td>${p.categorie || ""}</td>
+                <td>${p.type || ""}</td>
+                <td>${prix.toFixed(2)} $</td>
+                <td>${qtyInitial}</td>
+                <td>${qty}</td>
+                <td>${tva}%</td>
+                <td>${total.toFixed(2)} $</td>
+            </tr>
+        `;
+    }).join("");
+
+    // Ouvrir fenêtre d'impression
+    const w = window.open("", "", "width=1000,height=800");
+
+    // HTML + CSS minimal
+    w.document.write(`
+        <html>
+        <head>
+            <title>Rapport Stock</title>
+            <style>
+                body { font-family: Arial; margin: 25px; }
+                h1, p { text-align: center; margin: 5px; }
+                .info { margin: 20px 0; font-size: 14px; }
+                table { width: 100%; border-collapse: collapse; font-size: 12px; }
+                th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+                th { background: #212529; color: white; }
+                tr:nth-child(even) { background: #f8f9fa; }
+                .footer {
+                    margin-top: 20px;
+                    text-align: center;
+                    font-size: 11px;
+                    color: #666;
+                }
+            </style>
+        </head>
+        <body>
+
+            <h1>📦 HELPSTORE POS</h1>
+            <p>Rapport détaillé du stock</p>
+
+            <div class="info">
+                <strong>Entreprise :</strong> ${idEntreprise}<br>
+                <strong>Date :</strong> ${date}<br>
+                <strong>Total articles :</strong> ${stock.length}
+            </div>
+
+            <table>
+                <tr>
+                    <th>Produit</th>
+                    <th>Code</th>
+                    <th>Catégorie</th>
+                    <th>Type</th>
+                    <th>Prix TTC</th>
+                    <th>Qté Initiale</th>
+                    <th>Qté Actuelle</th>
+                    <th>TVA</th>
+                    <th>Total TTC</th>
+                </tr>
+                ${rows}
+            </table>
+
+            <div class="footer">
+                Document généré automatiquement par HELPSTORE POS
+            </div>
+
+            <script>
+                window.print();
+                window.onafterprint = () => window.close();
+            <\/script>
+
+        </body>
+        </html>
+    `);
+
+    w.document.close();
+}
+
+
+
+// ========================
+// EXPORT EXCEL
+// ========================
+function exportExcel() {
+
+    // Préparer les données
+    const data = stock.map(p => {
+
+        const isService = p.type === "Service";
+        const qty = isService ? 0 : Number(p.quantite) || 0;
+        const qtyInitial = isService ? 0 : Number(p.quantiteInitiale) || 0;
+        const prix = Number(p.prix) || 0;
+        const tva = Number(p.tva) || 0;
+        const totalTTC = isService ? prix : prix * qty;
+
+        return {
+            "Produit": p.nom || "",
+            "Code Barre": p.codebarre || "",
+            "Catégorie": p.categorie || "",
+            "Type": p.type || "",
+            "Prix TTC ($)": prix,
+            "Quantité Initiale": qtyInitial,
+            "Quantité Actuelle": qty,
+            "TVA (%)": tva,
+            "Total TTC ($)": totalTTC
+        };
+    });
+
+    // Créer workbook
+    const wb = XLSX.utils.book_new();
+
+    // Créer feuille
+    const ws = XLSX.utils.json_to_sheet(data);
+
+    // Ajouter feuille au workbook
+    XLSX.utils.book_append_sheet(wb, ws, "Stock");
+
+    // Nom du fichier avec date
+    const date = new Date().toISOString().slice(0, 10);
+
+    // Télécharger
+    XLSX.writeFile(wb, `Stock_${idEntreprise}_${date}.xlsx`);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>

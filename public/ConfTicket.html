@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>POS SaaS</title>
+<title>POS Ticket</title>
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
@@ -11,7 +11,36 @@
 <script src="globalconfig.js"></script>
 </head>
 
-<body class="bg-light">
+<body class="bg-light" style="display:none;">
+
+<script>
+(function () {
+
+  if (localStorage.getItem("adminLogged") !== "true") {
+    window.location.replace("Login admin.html");
+    return;
+  }
+
+  window.addEventListener("load", () => {
+
+    document.body.style.display = "block";
+
+    // attendre DOM prêt
+    setTimeout(() => {
+
+      if (idEntreprise) {
+        entrepriseInput.value = idEntreprise;
+        loadSettings();
+      }
+
+    }, 50);
+
+  });
+
+})();
+</script>
+
+
 
 <!-- MENU RESPONSIVE -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark px-3">
@@ -40,7 +69,7 @@
 
 <div class="container py-4">
 
-<h3 class="text-center mb-4">⚙️ Ticket SaaS Multi-Entreprise</h3>
+<h3 class="text-center mb-4">⚙️ Ticket Multi-Entreprise</h3>
 
 <div class="row g-3">
 
@@ -237,15 +266,15 @@ document.querySelectorAll("textarea").forEach(el => {
 });
 
 // INIT AUTO LOAD
-window.onload = () => {
-
+window.addEventListener("load", () => {
   if (idEntreprise) {
     entrepriseInput.value = idEntreprise;
-    loadSettings();
   }
-};
+});
 
 </script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
 
 </body>
 </html>

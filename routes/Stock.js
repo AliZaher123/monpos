@@ -9,23 +9,25 @@ const mongoose = require("mongoose");
 const Stock = mongoose.model("Stock", {
   nom: String,
   codebarre: String,
+
+  // ⚠️ PRIX = TTC
   prix: Number,
 
-  // 🔥 STOCK
+  // STOCK
   quantite: Number,
-  quantiteInitiale: Number, // ✅ NOUVEAU
+  quantiteInitiale: Number,
 
   categorie: String,
   tva: Number,
 
-  // 🔥 TYPE (Produit / Service)
   type: { type: String, default: "Produit" },
 
-  // calculs
+  // CALCULS
+  prixHT: Number,
+  montantTVA: Number,
   prixTTC: Number,
   totalTTC: Number,
 
-  // SAAS
   idEntreprise: String
 });
 
@@ -50,30 +52,35 @@ router.post("/", async (req, res) => {
     return res.status(400).json({ message: "idEntreprise requis" });
   }
 
-  let prixNum = Number(prix);
+  let prixTTC = Number(prix); // ✅ prix saisi = TTC
   let tvaNum = Number(tva || 0);
   let qtyNum = Number(quantite || 0);
 
-  // 🔥 SERVICE = pas de stock
   if (type === "Service") {
     qtyNum = 0;
   }
 
-  let prixTTC = prixNum + (prixNum * tvaNum / 100);
+  // ✅ EXTRACTION TVA
+  let prixHT = prixTTC / (1 + tvaNum / 100);
+  let montantTVA = prixTTC - prixHT;
+
   let totalTTC = prixTTC * (qtyNum || 1);
 
   const data = await Stock.create({
     nom,
     codebarre,
-    prix: prixNum,
+
+    prix: prixTTC,
 
     quantite: qtyNum,
-    quantiteInitiale: qtyNum, // ✅ FIXE
+    quantiteInitiale: qtyNum,
 
     categorie,
     tva: tvaNum,
     type: type || "Produit",
 
+    prixHT,
+    montantTVA,
     prixTTC,
     totalTTC,
 
@@ -147,7 +154,7 @@ router.put("/:id", async (req, res) => {
     return res.status(404).json({ message: "Non autorisé" });
   }
 
-  // 🔥 SERVICE = BLOQUÉ
+  // SERVICE BLOQUÉ
   if (stock.type === "Service") {
     return res.json({
       message: "Service - stock non modifiable",
@@ -155,19 +162,26 @@ router.put("/:id", async (req, res) => {
     });
   }
 
-  let prix = Number(req.body.prix ?? stock.prix);
+  let prixTTC = Number(req.body.prix ?? stock.prix);
   let tva = Number(req.body.tva ?? stock.tva);
   let quantite = Number(req.body.quantite ?? stock.quantite);
+  let quantiteInitiale = Number(req.body.quantiteInitiale ?? stock.quantiteInitiale);
 
-  let prixTTC = prix + (prix * tva / 100);
+  // ✅ EXTRACTION TVA
+  let prixHT = prixTTC / (1 + tva / 100);
+  let montantTVA = prixTTC - prixHT;
+
   let totalTTC = prixTTC * quantite;
 
   const updated = await Stock.findByIdAndUpdate(
     req.params.id,
     {
-      prix,
+      prix: prixTTC,
       tva,
       quantite,
+      quantiteInitiale,
+      prixHT,
+      montantTVA,
       prixTTC,
       totalTTC
     },
@@ -190,9 +204,11 @@ router.post("/decrement", async (req, res) => {
     idEntreprise
   });
 
-  if (!produit) return res.status(404).json({ message: "Produit introuvable" });
+  if (!produit) {
+    return res.status(404).json({ message: "Produit introuvable" });
+  }
 
-  // 🔥 SERVICE = ON NE TOUCHE PAS
+  // SERVICE IGNORÉ
   if (produit.type === "Service") {
     return res.json({ message: "Service ignoré", produit });
   }
@@ -200,6 +216,9 @@ router.post("/decrement", async (req, res) => {
   produit.quantite -= Number(quantite);
 
   if (produit.quantite < 0) produit.quantite = 0;
+
+  // 🔁 recalcul total
+  produit.totalTTC = produit.prixTTC * produit.quantite;
 
   await produit.save();
 

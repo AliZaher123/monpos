@@ -14,7 +14,7 @@
 <script src="globalconfig.js"></script>
 </head>
 
-<body class="bg-light">
+<body class="bg-light" id="app" style="display:none;">
 
 <!-- MENU RESPONSIVE -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark px-3">
@@ -29,12 +29,21 @@
   <div class="collapse navbar-collapse" id="menu">
     <div class="navbar-nav ms-auto">
       <a class="nav-link text-white" href="Rapports.html">Rapports</a>
-      <a class="nav-link text-white" href="Menu.html">Menu</a>
+      <a id="menuLink" class="nav-link text-white" href="Menu.html">Menu</a>
     </div>
  <!-- 👇 ICI -->
-  <span id="currentUser" class="text-white ms-3"></span>
+  <!--<span id="currentUser" class="text-white ms-3"></span>-->
 
   </div>
+  <div class="d-flex align-items-center ms-auto gap-3">
+
+  <span id="currentUser" class="text-white"></span>
+
+  <button class="btn btn-danger btn-sm" onclick="logout()">
+    Déconnexion
+  </button>
+
+</div>
 
 </nav>
 
@@ -152,18 +161,100 @@
 <script>
 
 
+(async () => {
+  try {
+    const res = await fetch(`${API}/me`, {
+      credentials: "include"
+    });
+
+    const data = await res.json();
+
+    if (!data.user) {
+      window.location.replace("Login.html");
+      return;
+    }
+
+    // ✔ autorisé → afficher page
+    document.getElementById("app").style.display = "block";
+
+  } catch (err) {
+    window.location.replace("Login.html");
+  }
+})();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 let idEntreprise = localStorage.getItem("idEntreprise");
-const currentUser = localStorage.getItem("user") || "Inconnu";
-document.getElementById("currentUser").innerText = "👤 " + currentUser;
+
+
+document.addEventListener("DOMContentLoaded", () => {
+  const user = localStorage.getItem("user") || "Inconnu";
+  const role = localStorage.getItem("role") || "";
+
+  const el = document.getElementById("currentUser");
+
+  if (el) {
+    el.innerText = "👤 " + user + (role ? " (" + role + ")" : "");
+  }
+});
+
+//pour afficher le nom user dans le ticket
+let user = localStorage.getItem("user") || "Inconnu";
+
 
 // 🔐 sécurité SaaS
 if (!idEntreprise) {
   alert("Aucune entreprise connectée !");
-  window.location.href = "login.html";
+  window.location.href = "Login.html";
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+
+  const role = localStorage.getItem("role");
+
+  if (role === "user") {
+    const menuLink = document.getElementById("menuLink");
+
+    if (menuLink) {
+      menuLink.classList.add("disabled");
+      menuLink.style.pointerEvents = "none";
+      menuLink.style.opacity = "0.5";
+    }
+  }
+
+});
+
+
+function logout() {
+
+    localStorage.clear(); // 🔥 supprime TOUT (session propre)
+
+    window.location.href = "Login.html";
+}
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -179,19 +270,29 @@ let settings = {
 
 async function loadSettings() {
   try {
-    let res = await fetch(`${API}/api/ticket/${idEntreprise}`);
-    let data = await res.json();
+    const url = `${API}/api/ticket/${idEntreprise}`;
+    console.log("Fetching settings:", url);
+
+    const res = await fetch(url);
+
+    if (!res.ok) {
+      console.error("Settings HTTP error:", res.status);
+      return;
+    }
+
+    const data = await res.json();
+
+    console.log("SETTINGS BACKEND:", data);
 
     settings = {
-  headerText: data.headerText || "",
-  footerText: data.footerText || "",
-  logo: data.logo || "",
-  enableTVA: data.enableTVA || false
-};
-    console.log("ID ENTREPRISE:", idEntreprise);
+      headerText: data.headerText || "",
+      footerText: data.footerText || "",
+      logo: data.logo || "",
+      enableTVA: data.enableTVA || false
+    };
 
   } catch (err) {
-    console.error("Erreur settings:", err);
+    console.error("loadSettings error:", err);
   }
 }
 
@@ -475,6 +576,7 @@ async function pay() {
   let totalTTC = parseFloat(document.getElementById("totalUSD").innerText);
   let payUSD = parseFloat(document.getElementById("payUSD").value) || 0;
   let payCDF = parseFloat(document.getElementById("payCDF").value) || 0;
+  let remark = document.getElementById("remark").value;
 
   let method = document.getElementById("paymentMethod").value;
 
@@ -545,7 +647,7 @@ ticket += `</div>`;
 // ======================
 ticket += `<div class="left">`;
 
-ticket += `<p>Caissier: ${currentUser}</p>`;
+ticket += `<p>Caissier: ${user}</p>`;
 //ticket += `<p>Entreprise: ${idEntreprise}</p>`;
 
 const now = new Date().toLocaleString();
@@ -554,7 +656,14 @@ ticket += `<p>Date: ${now}</p>`;
 ticket += `<hr>`;
 // PRODUITS
 cart.forEach(p => {
-  ticket += `<p>${p.name} x${p.qty} = ${(p.price * p.qty).toFixed(2)} USD</p>`;
+  ticket += `
+    <div style="font-size:14px; margin-bottom:6px;">
+      <b>${p.name}</b><br>
+      <span>${p.qty} x ${p.price.toFixed(2)}</span>
+      <span style="float:right;">${(p.price * p.qty).toFixed(2)} USD</span>
+      <div style="clear:both;"></div>
+    </div>
+  `;
 });
 
 // TOTAL + TVA + PAIEMENT
@@ -582,9 +691,44 @@ if (settings.enableTVA) {
   `;
 }
 
-ticket += `<p>Payé: ${safePay.toFixed(2)} USD</p>`;
-ticket += `<p>Monnaie: ${safeChange.toFixed(2)} USD</p>`;
+// ======================
+// PAYÉ ET MONNAIE
+// ======================
+if (payCDF > 0 && payUSD === 0) {
+
+  // Paiement uniquement en CDF
+  const payCDFValue = payCDF;
+  const changeCDF = safeChange * rate;
+
+  ticket += `<p>Payé: ${payCDFValue.toLocaleString()} FC</p>`;
+  ticket += `<p>Monnaie: ${changeCDF.toLocaleString()} FC</p>`;
+
+} else if (payUSD > 0 && payCDF === 0) {
+
+  // Paiement uniquement en USD
+  ticket += `<p>Payé: ${payUSD.toFixed(2)} USD</p>`;
+  ticket += `<p>Monnaie: ${safeChange.toFixed(2)} USD</p>`;
+
+} else {
+
+  // Paiement mixte USD + CDF
+  if (payUSD > 0) {
+    ticket += `<p>Payé USD: ${payUSD.toFixed(2)} USD</p>`;
+  }
+
+  if (payCDF > 0) {
+    ticket += `<p>Payé CDF: ${payCDF.toLocaleString()} FC</p>`;
+  }
+
+  ticket += `<p>Monnaie: ${safeChange.toFixed(2)} USD</p>`;
+}
+
+
 ticket += `<p>Méthode: ${method}</p>`;
+
+if (remark && remark.trim() !== "") {
+  ticket += `<p><b>Remarque:</b> ${remark}</p>`;
+}
 
 ticket += `</div>`;
 
@@ -605,7 +749,7 @@ ticket += `</div>`;
   printTicket(ticket);
   // 🔥 retour direct vers page principale
 setTimeout(() => {
-  window.location.href = "index.html";
+  window.location.href = "Index.html";
 }, 1500);
   clearCart();
 }

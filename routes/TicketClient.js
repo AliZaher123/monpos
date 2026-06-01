@@ -1,11 +1,15 @@
 // ==========================
 // 🧾 RECUPERER + AFFICHER TICKET
 // ==========================
+// ==========================
+// 🧾 RECUPERER + AFFICHER TICKET
+// ==========================
 async function loadTicket(venteId) {
 
   try {
 
-    const res = await fetch(`http://localhost:3000/ventes/ticket/${venteId}`);
+    // ✅ FIX IMPORTANT : API dynamique (Render / local)
+    const res = await fetch(`${API}/ventes/ticket/${venteId}`);
     const vente = await res.json();
 
     if (!vente) {
@@ -15,7 +19,7 @@ async function loadTicket(venteId) {
 
     const t = vente.ticket || {};
 
-    console.log("TICKET DATA:", t); // 🔥 DEBUG IMPORTANT
+    console.log("TICKET DATA:", t);
 
     let html = `<div style="font-family: monospace; text-align:center;">`;
 
@@ -38,16 +42,18 @@ async function loadTicket(venteId) {
     // ======================
     // PRODUITS
     // ======================
-    vente.produits.forEach(p => {
-      html += `<p>${p.nom} x${p.quantite} = ${Number(p.total).toFixed(2)} USD</p>`;
-    });
+    if (Array.isArray(vente.produits)) {
+      vente.produits.forEach(p => {
+        html += `<p>${p.nom} x${p.quantite} = ${Number(p.total).toFixed(2)} USD</p>`;
+      });
+    }
 
     html += `<hr style="border-top:1px dashed black;">`;
 
     // ======================
     // TOTAL
     // ======================
-    html += `<p><b>TOTAL: ${Number(vente.totalGeneral).toFixed(2)} USD</b></p>`;
+    html += `<p><b>TOTAL: ${Number(vente.totalGeneral || 0).toFixed(2)} USD</b></p>`;
 
     // ======================
     // TVA
@@ -56,7 +62,7 @@ async function loadTicket(venteId) {
       html += `<p>TVA incluse</p>`;
     }
 
-    html += `<p>Paiement: ${vente.paiement}</p>`;
+    html += `<p>Paiement: ${vente.paiement || ""}</p>`;
 
     html += `<hr style="border-top:1px dashed black;">`;
 
@@ -75,6 +81,38 @@ async function loadTicket(venteId) {
     console.error(err);
     alert("Erreur chargement ticket");
   }
+}
+
+
+// ==========================
+// 🖨️ IMPRIMER
+// ==========================
+function printTicketFromDiv() {
+
+  const content = document.getElementById("ticketZone").innerHTML;
+
+  let w = window.open("", "_blank");
+
+  w.document.open();
+
+  w.document.write(`
+    <html>
+    <head>
+      <title>Ticket</title>
+      <style>
+        body { font-family: monospace; text-align:center; }
+        img { max-width: 100px; }
+      </style>
+    </head>
+    <body onload="window.print()">
+      ${content}
+    </body>
+    </html>
+  `);
+
+  w.document.close();
+
+  // ❌ SUPPRIMÉ : ancien console.log cassé (vente n'existe pas ici)
 }
 
 
