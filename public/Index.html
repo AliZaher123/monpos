@@ -28,6 +28,7 @@
 
   <div class="collapse navbar-collapse" id="menu">
     <div class="navbar-nav ms-auto">
+      <a class="nav-link text-white" onclick="openCashDrawer()">Ouvrer Caisse</a>
       <a class="nav-link text-white" href="Rapports.html">Rapports</a>
       <a id="menuLink" class="nav-link text-white" href="Menu.html">Menu</a>
     </div>
@@ -819,6 +820,17 @@ function printTicket(html) {
     }, 300);
   };
 }
+
+
+function openCashDrawer() {
+  const cmd = '\x1B\x70\x00\x19\xFA';
+
+  let w = window.open("", "_blank");
+  w.document.write(cmd);
+  w.print();
+  w.close();
+}
+
 
 
 </script>
