@@ -28,7 +28,6 @@
 
   <div class="collapse navbar-collapse" id="menu">
     <div class="navbar-nav ms-auto">
-      <a class="nav-link text-white" onclick="openCashDrawer()">Ouvrer Caisse</a>
       <a class="nav-link text-white" href="Rapports.html">Rapports</a>
       <a id="menuLink" class="nav-link text-white" href="Menu.html">Menu</a>
     </div>
@@ -39,6 +38,10 @@
   <div class="d-flex align-items-center ms-auto gap-3">
 
   <span id="currentUser" class="text-white"></span>
+
+  <button class="btn btn-warning w-100 mt-2" onclick="openCashDrawer()">
+  💰 Ouvrir tiroir caisse
+</button>
 
   <button class="btn btn-danger btn-sm" onclick="logout()">
     Déconnexion
