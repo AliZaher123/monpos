@@ -131,8 +131,8 @@ app.get("/mes", (req, res) => {
 // ======================
 // PUBLIC ROUTES
 // ======================
-app.use("/login", require("./routes/login"));
-app.use("/logout", require("./routes/logout"));
+app.use("/login", require("./routes/Login"));
+app.use("/logout", require("./routes/Logout"));
 
 app.use("/login-admin", require("./routes/Loginadmin"));
 app.use("/api", require("./routes/Logoutadmin")); // 👈 AJOUT
