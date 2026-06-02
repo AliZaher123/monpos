@@ -80,7 +80,8 @@
 
 
 <div class="table-responsive">
-<table class="table table-hover align-middle">
+<table class="table table-bordered table-sm">
+
 <thead class="table-dark">
 <tr>
 <th>Produit</th>
@@ -316,7 +317,13 @@ function render() {
             <td>${p.nom}</td>
             <td>${p.codebarre}</td>
             <td>${p.categorie}</td>
-            <td>${p.type}</td>
+            <td>
+            ${
+            p.type === "Produit"
+            ? '<span class="badge bg-success">Produit</span>'
+            : '<span class="badge bg-primary">Service</span>'
+            }
+            </td>
 
             <!-- PRIX TTC -->
             <td class="text-primary fw-bold">
