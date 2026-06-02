@@ -52,64 +52,40 @@ if (!localStorage.getItem("user")) {
 <div class="row row-cols-2 g-3">
 
   <div class="col">
-  <div class="card border-0 shadow-sm text-center p-4 h-100 rounded-4">
-
-    <div class="fs-1 mb-3">🛒</div>
-
-    <h4 class="fw-bold">POS</h4>
-
-    <p class="text-muted small">
-      Gérez vos ventes et encaissez vos clients rapidement.
-    </p>
-
-    <button class="btn btn-primary w-100 rounded-3 py-2 mt-auto"
-      onclick="go('Index.html')">
-      Ouvrir
-    </button>
-
-  </div>
-</div>
-
-  <!-- STOCK -->
-  <div class="col">
-    <div class="card border-0 shadow-sm text-center p-4 h-100 rounded-4">
-      <div class="fs-1 mb-3">📦</div>
-      <h4 class="fw-bold">Stock</h4>
-      <p class="text-muted small">
-        Gérez vos produits, quantités et inventaire en temps réel.
-      </p>
-      <button class="btn btn-success w-100 rounded-3 py-2 mt-auto"
-        onclick="go('Stock.html')">
-        Gérer
-      </button>
-    </div>
-  </div>
-
-  <!-- CONFIGURATION -->
-  <div class="col">
-    <div class="card border-0 shadow-sm text-center p-4 h-100 rounded-4">
-      <div class="fs-1 mb-3">⚙️</div>
-      <h4 class="fw-bold">Configuration</h4>
-      <p class="text-muted small">
-        Paramètres du système, taxes et options POS.
-      </p>
-      <button class="btn btn-warning w-100 rounded-3 py-2 mt-auto"
-        onclick="go('Configuration.html')">
+    <div class="card shadow-sm text-center p-3 h-100">
+      <div class="fs-1">🛒</div>
+      <h6>POS</h6>
+      <button class="btn btn-primary w-100 mt-2" onclick="go('Index.html')">
         Ouvrir
       </button>
     </div>
   </div>
 
-  <!-- RAPPORTS -->
   <div class="col">
-    <div class="card border-0 shadow-sm text-center p-4 h-100 rounded-4">
-      <div class="fs-1 mb-3">📊</div>
-      <h4 class="fw-bold">Rapports</h4>
-      <p class="text-muted small">
-        Analyse des ventes, profits et statistiques.
-      </p>
-      <button class="btn btn-dark w-100 rounded-3 py-2 mt-auto"
-        onclick="go('Rapports.html')">
+    <div class="card shadow-sm text-center p-3 h-100">
+      <div class="fs-1">📦</div>
+      <h6>Stock</h6>
+      <button class="btn btn-success w-100 mt-2" onclick="go('Stock.html')">
+        Gérer
+      </button>
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="card shadow-sm text-center p-3 h-100">
+      <div class="fs-1">⚙️</div>
+      <h6>Configuration</h6>
+      <button class="btn btn-warning w-100 mt-2" onclick="go('Configuration.html')">
+        Ouvrir
+      </button>
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="card shadow-sm text-center p-3 h-100">
+      <div class="fs-1">📊</div>
+      <h6>Rapports</h6>
+      <button class="btn btn-dark w-100 mt-2" onclick="go('Rapports.html')">
         Voir
       </button>
     </div>
