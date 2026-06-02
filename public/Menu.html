@@ -40,7 +40,7 @@ if (!localStorage.getItem("user")) {
   <div class="display-5 mb-3">👋</div>
 
   <h2 class="fw-bold">
-    Bienvenue, <span id="userText"></span> !
+    Bienvenue, <span id="welcomeUser"></span> !
   </h2>
 
   <p class="text-muted">
@@ -111,6 +111,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.getElementById("userText").innerText =
     "👤 " + user + (role ? " (" + role + ")" : "");
+  document.getElementById("welcomeUser").innerText = user;
 });
 
 // =====================
