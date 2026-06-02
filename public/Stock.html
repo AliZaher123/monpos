@@ -317,6 +317,7 @@ function render() {
             <td>${p.nom}</td>
             <td>${p.codebarre}</td>
             <td>${p.categorie}</td>
+
             <td>
             ${
             p.type === "Produit"
@@ -357,7 +358,11 @@ function render() {
             </td>
 
             <!-- TVA % -->
-            <td>${tva}%</td>
+            <td>
+            <span class="badge bg-secondary">
+            ${tva}%
+            </span>
+            </td>
 
             <!-- TOTAL TTC -->
             <td class="text-success fw-bold">
