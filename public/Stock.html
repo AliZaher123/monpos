@@ -315,7 +315,7 @@ function render() {
             <td class="text-break" style="max-width:120px;">
                 ${p.nom}
             </td>
-            <td style="width:80px; font-family: monospace; font-size:11px; line-height:1.1;">
+          <td style="width:120px; white-space:normal; word-break:break-word;">
             ${p.codebarre ? p.codebarre.match(/.{1,6}/g).join('<br>') : ''}
             </td>
             <td>${p.categorie}</td>
