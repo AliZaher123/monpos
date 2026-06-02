@@ -315,11 +315,9 @@ function render() {
             <td class="text-break" style="max-width:120px;">
                 ${p.nom}
             </td>
-
             <td class="text-break" style="max-width:60px;">
-            ${p.codebarre ? p.codebarre.match(/.{1,6}/g).join('<br>') : ''}
+                ${p.codebarre}
             </td>
-            
             <td>${p.categorie}</td>
 
             <td>
