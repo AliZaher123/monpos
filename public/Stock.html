@@ -22,8 +22,10 @@
 
   <div class="collapse navbar-collapse" id="menu">
     <div class="navbar-nav ms-auto">
-      <a class="nav-link text-white" href="Menu.html">Retour →</a>
-    </div>
+        <a class="btn btn-light btn-sm" href="Menu.html">
+          ← Retour
+        </a> 
+       </div>
   </div>
 </nav>
 
@@ -54,7 +56,7 @@
 
 <select id="tva" class="form-select my-2"></select>
 
-<button class="btn btn-primary w-100 mt-2" onclick="addProduct()">Ajouter</button>
+<button class="btn btn-primary w-100 mt-2" onclick="addProduct()">➕ Ajouter</button>
 
 <hr>
 
@@ -67,6 +69,16 @@
 <!-- TABLE -->
 <div class="col-12 col-md-8">
 <div class="card p-3 shadow-sm">
+<div class="d-flex justify-content-end gap-2 mb-3">
+    <button class="btn btn-success shadow-sm" onclick="exportExcel()">
+        📊 Exporter Excel
+    </button>
+
+    <button class="btn btn-dark shadow-sm" onclick="printReport()">
+        🖨 Imprimer rapport
+    </button>
+</div>
+
 
 <div class="d-flex justify-content-end gap-2 mb-2">
     <button class="btn btn-success" onclick="exportExcel()">
@@ -80,8 +92,7 @@
 
 
 <div class="table-responsive">
-<table class="table table-bordered table-sm">
-
+<table class="table table-hover align-middle">
 <thead class="table-dark">
 <tr>
 <th>Produit</th>
@@ -314,11 +325,27 @@ function render() {
 
         tbody.innerHTML += `
         <tr>
-            <td>${p.nom}</td>
-            <td>${p.codebarre}</td>
+            <td class="text-break" style="max-width:120px;">
+                ${p.nom}
+            </td>
+            <td class="text-break" style="max-width:60px;">
+                ${p.codebarre}
+            </td>
             <td>${p.categorie}</td>
+<<<<<<< HEAD
             <td>${p.type}</td>
 
+=======
+
+            <td>
+            ${
+            p.type === "Produit"
+            ? '<span class="badge bg-success">Produit</span>'
+            : '<span class="badge bg-primary">Service</span>'
+            }
+            </td>
+
+>>>>>>> dev
             <!-- PRIX TTC -->
             <td class="text-primary fw-bold">
                 ${priceTTC.toFixed(2)} $
@@ -349,10 +376,17 @@ function render() {
                     onchange="updateQty('${p._id}', this.value)">`
             }
             </td>
+<<<<<<< HEAD
 
             <!-- TVA % -->
             <td>${tva}%</td>
 
+=======
+
+            <!-- TVA % -->
+            <td>${tva}% </td>
+
+>>>>>>> dev
             <!-- TOTAL TTC -->
             <td class="text-success fw-bold">
                 ${totalTTC.toFixed(2)} $
