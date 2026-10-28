@@ -13,7 +13,7 @@ const operationSchema = new mongoose.Schema({
 
 // Atlas screenshot shows the target database as "test" and collection as
 // "comptabilites". MONGO_DB can override the database per deployment.
-const comptabiliteDb = mongoose.connection.useDb(process.env.MONGO_DB || "test");
+const comptabiliteDb = mongoose.connection.useDb(process.env.MONGO_DB || "monpos");
 const Comptabilite = comptabiliteDb.models.Comptabilite ||
   comptabiliteDb.model("Comptabilite", operationSchema);
 
