@@ -9,7 +9,7 @@ const operationSchema = new mongoose.Schema({
   libelle: { type: String, required: true, trim: true, maxlength: 200 },
   categorie: { type: String, required: true, enum: ["Revenu", "Dépense"] },
   montant: { type: Number, required: true, min: 0.01 }
-}, { timestamps: true });
+}, { timestamps: true, collection: "comptabilite" });
 
 const Comptabilite = mongoose.models.Comptabilite ||
   mongoose.model("Comptabilite", operationSchema);

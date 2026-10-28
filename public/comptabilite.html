@@ -8,26 +8,27 @@
 </head>
 
 <body class="bg-light">
-<div id="navbar"></div>
-
-<script>
-// Chargement de la navbar commune
-fetch("navbar.html")
-.then(res => res.text())
-.then(data => {
-    // 1. On injecte la navbar
-    document.getElementById("navbar").innerHTML = data;
-
-    // 2. On charge Bootstrap pour activer le menu hamburger
-    const script = document.createElement("script");
-    script.src = "https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js";
-    document.body.appendChild(script);
-});
-</script>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+    <div class="container-fluid">
+        <a class="navbar-brand fw-bold" href="Index.html">🛒 HELPSTORE</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuComptabilite" aria-controls="menuComptabilite" aria-expanded="false" aria-label="Ouvrir le menu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="menuComptabilite">
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link text-white" href="Rapports.html">Rapports</a>
+                <a class="nav-link text-white" href="RemboursementTicket.html">Remboursements</a>
+                <a class="nav-link text-white" href="comptabilite.html">Comptabilité</a>
+                <a class="nav-link text-white" href="Index.html">Retour</a>
+            </div>
+        </div>
+    </div>
+</nav>
 
 <div class="container py-4">
 
     <h2 class="text-center text-dark mb-4 fw-bold">📊 Comptabilité</h2>
+    <div id="messageCompta" class="alert d-none" role="alert"></div>
 
     <div class="row mb-4">
         <div class="col-md-4 mb-3">
@@ -144,8 +145,10 @@ fetch("navbar.html")
 </div>
 
 <script>
-const API = "http://localhost:3000/comptabilite";
+const API = `${window.location.origin}/comptabilite`;
 const table = document.getElementById("tableCompta");
+const messageCompta = document.getElementById("messageCompta");
+function afficherMessage(message) { messageCompta.textContent = message; messageCompta.className = "alert alert-danger"; }
 
 let revenus = 0;
 let depenses = 0;
@@ -154,7 +157,7 @@ let depenses = 0;
 function verifierAuthentification(status) {
     if (status === 401 || status === 403) {
         alert("🔒 Votre session a expiré ou vous n'êtes pas connecté. Redirection...");
-        window.location.href = "login.html";
+        window.location.href = "Login.html";
         return true;
     }
     return false;
