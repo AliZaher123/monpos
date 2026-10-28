@@ -152,6 +152,7 @@ app.use("/api", isLoggedIn, require("./routes/RapportVente"));
 app.use("/api/ticket", require("./routes/Ticket"));
 
 app.use("/api/remboursement", isLoggedIn, require("./routes/RemboursementTicket"));
+app.use("/comptabilite", isLoggedIn, require("./routes/comptabilite"));
 
 // ======================
 // TEST PROTECTED ROUTE
