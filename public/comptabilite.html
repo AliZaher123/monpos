@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comptabilité</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-light">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+    <div class="container-fluid">
+        <a class="navbar-brand fw-bold" href="Index.html">🛒 HELPSTORE</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuComptabilite" aria-controls="menuComptabilite" aria-expanded="false" aria-label="Ouvrir le menu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="menuComptabilite">
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link text-white" href="Rapports.html">Rapports</a>
+                <a class="nav-link text-white" href="RemboursementTicket.html">Remboursements</a>
+                <a class="nav-link text-white" href="comptabilite.html">Comptabilité</a>
+                <a class="nav-link text-white" href="Index.html">Retour</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="container py-4">
+
+    <h2 class="text-center text-dark mb-4 fw-bold">📊 Comptabilité</h2>
+    <div id="messageCompta" class="alert d-none" role="alert"></div>
+
+    <div class="row mb-4">
+        <div class="col-md-4 mb-3">
+            <div class="card bg-success text-white shadow">
+                <div class="card-body text-center">
+                    <h5>Revenus</h5>
+                    <h2 id="revenus">0.00 $</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <div class="card bg-danger text-white shadow">
+                <div class="card-body text-center">
+                    <h5>Dépenses</h5>
+                    <h2 id="depenses">0.00 $</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <div class="card bg-primary text-white shadow">
+                <div class="card-body text-center">
+                    <h5>Bénéfice</h5>
+                    <h2 id="benefice">0.00 $</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header fw-bold bg-white text-dark">
+            Nouvelle opération
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">Date</label>
+                    <input type="date" class="form-control" id="date">
+                </div>
+
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">Libellé</label>
+                    <input type="text" class="form-control" id="libelle" placeholder="Ex : Vente">
+                </div>
+
+                <div class="col-md-2 mb-3">
+                    <label class="form-label">Catégorie</label>
+                    <select class="form-select" id="categorie">
+                        <option value="Revenu">Revenu</option>
+                        <option value="Dépense">Dépense</option>
+                    </select>
+                </div>
+
+                <div class="col-md-2 mb-3">
+                    <label class="form-label">Montant</label>
+                    <input type="number" class="form-control" id="montant" placeholder="0.00">
+                </div>
+
+                <div class="col-md-2 d-flex align-items-end mb-3">
+                    <button class="btn btn-primary w-100" id="ajouter">
+                        Ajouter
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header fw-bold bg-white text-dark">
+            Rechercher par période
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-5 mb-3">
+                    <label class="form-label">Date début</label>
+                    <input type="date" class="form-control" id="dateDebut">
+                </div>
+
+                <div class="col-md-5 mb-3">
+                    <label class="form-label">Date fin</label>
+                    <input type="date" class="form-control" id="dateFin">
+                </div>
+
+                <div class="col-md-2 d-flex align-items-end mb-3">
+                    <button class="btn btn-primary w-100" id="filtrer">
+                        Rechercher
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-header fw-bold bg-dark text-white">
+            Historique des opérations
+        </div>
+        <div class="card-body table-responsive">
+            <table class="table table-bordered table-hover align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Date</th>
+                        <th>Libellé</th>
+                        <th>Catégorie</th>
+                        <th>Montant</th>
+                        <th width="120">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="tableCompta"></tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<script>
+const API = `${window.location.origin}/comptabilite`;
+const table = document.getElementById("tableCompta");
+const messageCompta = document.getElementById("messageCompta");
+function afficherMessage(message) { messageCompta.textContent = message; messageCompta.className = "alert alert-danger"; }
+
+let revenus = 0;
+let depenses = 0;
+
+// Interception centralisée de la perte de session (401 / 403)
+function verifierAuthentification(status) {
+    if (status === 401 || status === 403) {
+        alert("🔒 Votre session a expiré ou vous n'êtes pas connecté. Redirection...");
+        window.location.href = "Login.html";
+        return true;
+    }
+    return false;
+}
+
+// =======================
+// Charger les opérations
+// =======================
+async function chargerOperations(){
+    try {
+        table.innerHTML = "";
+        revenus = 0;
+        depenses = 0;
+
+        const res = await fetch(API, { 
+            method: "GET",
+            credentials: "include" // 👈 Transmet les cookies de session Express
+        });
+
+        if (verifierAuthentification(res.status)) return;
+
+        const operations = await res.json();
+
+        operations.forEach(op => {
+            afficherOperation(op);
+        });
+
+        mettreAJourResume();
+    } catch (err) {
+        console.error("Erreur de chargement :", err);
+    }
+}
+
+// =======================
+// Affichage tableau
+// =======================
+function afficherOperation(op){
+    if(op.categorie === "Revenu"){
+        revenus += op.montant;
+    } else {
+        depenses += op.montant;
+    }
+
+    const ligne = document.createElement("tr");
+    ligne.dataset.date = op.date;
+
+    ligne.innerHTML = `
+        <td>${op.date}</td>
+        <td>${op.libelle}</td>
+        <td>
+            <span class="badge ${op.categorie === "Revenu" ? "bg-success" : "bg-danger"}">
+                ${op.categorie}
+            </span>
+        </td>
+        <td class="${op.categorie === "Revenu" ? "text-success" : "text-danger"} fw-bold">
+            ${op.categorie === "Revenu" ? "+" : "-"} ${op.montant.toFixed(2)} $
+        </td>
+        <td>
+            <button class="btn btn-danger btn-sm">Supprimer</button>
+        </td>
+    `;
+
+    ligne.querySelector("button").addEventListener("click", () => supprimer(op._id, ligne));
+    table.appendChild(ligne);
+}
+
+// =======================
+// Ajouter une opération
+// =======================
+document.getElementById("ajouter").addEventListener("click", async () => {
+    const date = document.getElementById("date").value;
+    const libelle = document.getElementById("libelle").value.trim();
+    const categorie = document.getElementById("categorie").value;
+    const montant = Number(document.getElementById("montant").value);
+
+    if(!date || !libelle || isNaN(montant) || montant <= 0){
+        alert("Veuillez remplir tous les champs correctement.");
+        return;
+    }
+
+    try {
+        const res = await fetch(API, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            credentials: "include", // 👈 Transmet les cookies de session Express
+            body: JSON.stringify({ date, libelle, categorie, montant })
+        });
+
+        if (verifierAuthentification(res.status)) return;
+
+        if (res.ok) {
+            // Rafraîchir complètement pour recalculer proprement les données
+            await chargerOperations();
+            alert("Opération enregistrée.");
+
+            // Réinitialisation des inputs
+            document.getElementById("date").value = "";
+            document.getElementById("libelle").value = "";
+            document.getElementById("montant").value = "";
+        } else {
+            const errData = await res.json();
+            alert(`Erreur : ${errData.message}`);
+        }
+    } catch (err) {
+        console.error("Erreur lors de l'ajout :", err);
+        afficherMessage("Échec de l’enregistrement : " + err.message);
+    }
+});
+
+// =======================
+// Supprimer une opération
+// =======================
+async function supprimer(id, ligne){
+    if(!confirm("Voulez-vous vraiment supprimer cette opération ?")) return;
+
+    try {
+        const res = await fetch(`${API}/${id}`, {
+            method: "DELETE",
+            credentials: "include" // 👈 Transmet les cookies de session Express
+        });
+
+        if (verifierAuthentification(res.status)) return;
+
+        if (res.ok) {
+            ligne.remove();
+            chargerOperations(); // Recalcule les totaux en rechargeant la liste rafraîchie
+        } else {
+            const errData = await res.json();
+            alert(`Erreur : ${errData.message}`);
+        }
+    } catch (err) {
+        console.error("Erreur de suppression :", err);
+    }
+}
+
+// =======================
+// Filtrer par période
+// =======================
+document.getElementById("filtrer").addEventListener("click", async () => {
+    const debut = document.getElementById("dateDebut").value;
+    const fin = document.getElementById("dateFin").value;
+
+    if(!debut || !fin){
+        alert("Veuillez choisir une période de début et de fin.");
+        return;
+    }
+
+    try {
+        const res = await fetch(`${API}/periode?debut=${debut}&fin=${fin}`, {
+            method: "GET",
+            credentials: "include" // 👈 Transmet les cookies de session Express
+        });
+
+        if (verifierAuthentification(res.status)) return;
+
+        const operations = await res.json();
+
+        table.innerHTML = "";
+        revenus = 0;
+        depenses = 0;
+
+        operations.forEach(op => {
+            afficherOperation(op);
+        });
+
+        mettreAJourResume();
+    } catch (err) {
+        console.error("Erreur de filtrage :", err);
+    }
+});
+
+// =======================
+// Mettre à jour le résumé
+// =======================
+function mettreAJourResume(){
+    document.getElementById("revenus").innerHTML = revenus.toFixed(2) + " $";
+    document.getElementById("depenses").innerHTML = depenses.toFixed(2) + " $";
+    
+    const benefice = revenus - depenses;
+    const beneficeEl = document.getElementById("benefice");
+    beneficeEl.innerHTML = benefice.toFixed(2) + " $";
+
+    // Style dynamique pour le bénéfice (vert si positif, rouge si négatif)
+    if (benefice >= 0) {
+        beneficeEl.parentElement.parentElement.className = "card bg-primary text-white shadow";
+    } else {
+        beneficeEl.parentElement.parentElement.className = "card bg-dark text-white shadow";
+    }
+}
+
+// Démarrage initial
+chargerOperations();
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
