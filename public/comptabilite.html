@@ -253,6 +253,7 @@ document.getElementById("ajouter").addEventListener("click", async () => {
         if (res.ok) {
             // Rafraîchir complètement pour recalculer proprement les données
             await chargerOperations();
+            alert("Opération enregistrée.");
 
             // Réinitialisation des inputs
             document.getElementById("date").value = "";
@@ -264,6 +265,7 @@ document.getElementById("ajouter").addEventListener("click", async () => {
         }
     } catch (err) {
         console.error("Erreur lors de l'ajout :", err);
+        afficherMessage("Échec de l’enregistrement : " + err.message);
     }
 });
 

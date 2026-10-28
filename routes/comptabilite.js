@@ -9,10 +9,13 @@ const operationSchema = new mongoose.Schema({
   libelle: { type: String, required: true, trim: true, maxlength: 200 },
   categorie: { type: String, required: true, enum: ["Revenu", "Dépense"] },
   montant: { type: Number, required: true, min: 0.01 }
-}, { timestamps: true, collection: "comptabilite" });
+}, { timestamps: true, collection: "comptabilites" });
 
-const Comptabilite = mongoose.models.Comptabilite ||
-  mongoose.model("Comptabilite", operationSchema);
+// Atlas screenshot shows the target database as "test" and collection as
+// "comptabilites". MONGO_DB can override the database per deployment.
+const comptabiliteDb = mongoose.connection.useDb(process.env.MONGO_DB || "test");
+const Comptabilite = comptabiliteDb.models.Comptabilite ||
+  comptabiliteDb.model("Comptabilite", operationSchema);
 
 function entrepriseId(req) {
   return req.session && req.session.user && req.session.user.entrepriseId
